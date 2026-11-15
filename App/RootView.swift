@@ -32,6 +32,7 @@ struct RootView: View {
             SettingsView(viewModel: settings, store: environment.store)
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
+        .fontDesign(.rounded)
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             today.reload()

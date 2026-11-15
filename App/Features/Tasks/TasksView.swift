@@ -7,6 +7,21 @@ struct TasksView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            ProgressRing(progress: viewModel.progress, lineWidth: 8, tint: .yellow)
+                            Text("⭐️").font(.title2)
+                        }
+                        .frame(width: 60, height: 60)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Այս շաբաթ՝ \(viewModel.starsThisWeek) աստղ").font(.headline)
+                            Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 6)
+                    .accessibilityElement(children: .combine)
+                }
                 ForEach(viewModel.groups) { group in
                     Section(group.title) {
                         ForEach(group.tasks) { task in
@@ -19,11 +34,16 @@ struct TasksView: View {
             }
             .overlay {
                 if viewModel.groups.isEmpty {
-                    ContentUnavailableView("Ամեն ինչ արված է", systemImage: "checkmark.seal",
-                                           description: Text("Նոր անելիք ավելացրու + կոճակով։"))
+                    ContentUnavailableView {
+                        Label("Ամեն ինչ արված է 🏆", systemImage: "party.popper.fill")
+                    } description: {
+                        Text("Նոր անելիք ավելացրու + կոճակով։")
+                    }
+                    .padding(.top, 120)
                 }
             }
-            .animation(.default, value: viewModel.remainingCount)
+            .animation(.spring, value: viewModel.remainingCount)
+            .overlay { ConfettiView(trigger: viewModel.celebrations).ignoresSafeArea() }
             .navigationTitle("Անելիքներ")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -39,7 +59,7 @@ struct TasksView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 if viewModel.remainingCount > 0 {
-                    Text("Մնացել է՝ \(viewModel.remainingCount)")
+                    Text("Մնացել է՝ \(viewModel.remainingCount) 💪")
                         .font(.footnote.weight(.medium))
                         .padding(.horizontal, 14).padding(.vertical, 8)
                         .background(.regularMaterial, in: .capsule)

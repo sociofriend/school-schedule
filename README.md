@@ -16,3 +16,9 @@ Native iOS 17+ app: scan a timetable with the camera, per-lesson notes and photo
 - **Widget**: `Widget/` timeline entries at each lesson start/end.
 
 > Vision OCR may not recognise Armenian script on every iOS version; the review screen lets the user fix results.
+
+## Design (kids first, teacher friendly)
+- Each subject has a color and SF Symbol (`Shared/Design/SubjectStyle.swift`), recognisable before reading.
+- Rounded type, big 44pt+ targets, bouncy press feedback, haptics, friendly copy and emoji.
+- Progress ring and weekly stars on the checklist; confetti when everything is done.
+- Respects Dynamic Type, VoiceOver labels and Reduce Motion (no confetti/bounce).

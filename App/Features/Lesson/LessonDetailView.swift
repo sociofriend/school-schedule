@@ -16,12 +16,12 @@ struct LessonDetailView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         Form {
-            Section("Գրառում") {
+            Section("✏️ Գրառում") {
                 TextField("Ինչ անցանք, կարևոր նշումներ…", text: $viewModel.noteText, axis: .vertical)
                     .lineLimit(4...)
             }
 
-            Section("Լուսանկարներ") {
+            Section("📷 Լուսանկարներ") {
                 if !viewModel.photos.isEmpty {
                     ScrollView(.horizontal) {
                         LazyHStack {
@@ -47,7 +47,7 @@ struct LessonDetailView: View {
                 }
             }
 
-            Section("Տնային / անելիքներ") {
+            Section("📚 Տնային") {
                 ForEach(viewModel.tasks) { task in
                     TaskRow(title: task.title, subject: "", isDone: task.isDone,
                             dueText: task.dueDate.formatted(.dateTime.weekday().day().month())) { viewModel.toggle(task) }
@@ -64,11 +64,15 @@ struct LessonDetailView: View {
         }
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .tint(SubjectStyle(subject: viewModel.title).color)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                VStack {
-                    Text(viewModel.title).font(.headline)
-                    Text(viewModel.dateText).font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    SubjectIcon(subject: viewModel.title, size: 30)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(viewModel.title).font(.headline)
+                        Text(viewModel.dateText).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
             }
         }

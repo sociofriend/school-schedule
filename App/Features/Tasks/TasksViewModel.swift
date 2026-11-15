@@ -13,6 +13,9 @@ final class TasksViewModel {
 
     private(set) var groups: [TaskGroup] = []
     private(set) var remainingCount = 0
+    /// Stars earned: tasks completed in the last 7 days.
+    private(set) var starsThisWeek = 0
+    private(set) var celebrations = 0
     private(set) var subjects: [String] = []
     var showsCompleted = false {
         didSet { reload() }
@@ -40,7 +43,10 @@ final class TasksViewModel {
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? today
         let all = store.tasks()
         let open = all.filter { !$0.isDone }
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) ?? now
+        if remainingCount > 0, open.isEmpty, !all.isEmpty { celebrations += 1 }
         remainingCount = open.count
+        starsThisWeek = all.filter { ($0.completedAt ?? .distantPast) > weekAgo }.count
         subjects = store.timetable().subjects
 
         var result = [
@@ -73,6 +79,13 @@ final class TasksViewModel {
     func saveDraft() {
         store.addTask(title: draftTitle, subject: draftSubject, due: draftDue)
     }
+
+    var progress: Double {
+        let total = starsThisWeek + remainingCount
+        return total == 0 ? 0 : Double(starsThisWeek) / Double(total)
+    }
+
+    var cheer: String { Greeting.cheer(done: starsThisWeek, total: starsThisWeek + remainingCount) }
 
     func toggle(_ task: TaskItem) { store.toggle(task) }
     func delete(_ task: TaskItem) { store.delete(task) }
