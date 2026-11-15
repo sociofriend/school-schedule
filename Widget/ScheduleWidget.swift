@@ -5,7 +5,11 @@ struct ScheduleWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "ScheduleWidget", provider: ScheduleProvider()) { entry in
             ScheduleWidgetView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .fontDesign(.rounded)
+                .containerBackground(for: .widget) {
+                    LinearGradient(colors: [Color.accentColor.opacity(0.18), Color(.systemBackground)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                }
         }
         .configurationDisplayName("Դասացուցակ")
         .description("Այսօրվա դասերը, իսկ դասերից հետո՝ վաղվա դասերն ու անելիքները։")
@@ -19,7 +23,7 @@ struct ScheduleWidgetView: View {
 
     private var title: String {
         let name = Weekday.name(Calendar.current.component(.weekday, from: entry.snapshot.date))
-        return entry.isToday ? "Այսօր · \(name)" : "Վաղը · \(name)"
+        return entry.isToday ? "☀️ Այսօր · \(name)" : "🌙 Վաղը · \(name)"
     }
 
     var body: some View {
@@ -85,7 +89,11 @@ struct ScheduleWidgetView: View {
         ForEach(entry.snapshot.lessons.prefix(limit)) { lesson in
             let isCurrent = lesson.period == entry.currentPeriod
             HStack(spacing: 4) {
-                Text("\(lesson.period)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                Image(systemName: SubjectStyle(subject: lesson.subject).symbol)
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(SubjectStyle(subject: lesson.subject).color)
+                    .frame(width: 16)
+                    .widgetAccentable()
                 Text(lesson.subject).font(.caption.weight(isCurrent ? .bold : .regular)).lineLimit(1)
                 Spacer(minLength: 0)
                 if family != .systemSmall, let start = lesson.start {
@@ -99,10 +107,11 @@ struct ScheduleWidgetView: View {
     private func tasks(limit: Int) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             let remaining = entry.snapshot.remainingTasks
-            Text(remaining.isEmpty ? "Անելիքներ չկան" : "Անելիքներ · \(remaining.count)")
+            Text(remaining.isEmpty ? "Ամեն ինչ արված է ⭐️" : "Անելիքներ · \(remaining.count)")
                 .font(.caption.weight(.semibold))
             ForEach(remaining.prefix(limit)) { task in
                 Label(task.title, systemImage: "circle").font(.caption2).lineLimit(1)
+                    .foregroundStyle(task.subject.isEmpty ? Color.primary : SubjectStyle(subject: task.subject).color)
             }
             Spacer(minLength: 0)
         }
