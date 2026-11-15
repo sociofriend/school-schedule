@@ -1,0 +1,60 @@
+import SwiftUI
+
+struct TimetableEditorView: View {
+    @State private var viewModel: TimetableEditorViewModel
+    @Environment(\.dismiss) private var dismiss
+    var onSave: () -> Void = {}
+
+    init(store: DataStore, scanned: ParsedTimetable? = nil, onSave: @escaping () -> Void = {}) {
+        _viewModel = State(initialValue: TimetableEditorViewModel(store: store, scanned: scanned))
+        self.onSave = onSave
+    }
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+        List {
+            Section {
+                Picker("Օր", selection: $viewModel.weekday) {
+                    ForEach(Weekday.schoolWeek, id: \.self) { Text(Weekday.shortName($0)).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            } footer: {
+                if viewModel.isReviewingScan {
+                    Text("Ստուգիր ճանաչված դասերը և ուղղիր անհրաժեշտության դեպքում։")
+                }
+            }
+
+            Section(Weekday.name(viewModel.weekday)) {
+                ForEach($viewModel.rows) { $row in
+                    HStack {
+                        Text("\((viewModel.rows.firstIndex(of: row) ?? 0) + 1).")
+                            .monospacedDigit().foregroundStyle(.secondary)
+                        TextField("Առարկա (դատարկ՝ ազատ ժամ)", text: $row.subject)
+                            .textInputAutocapitalization(.sentences)
+                        TextField("Սենյակ", text: $row.room)
+                            .frame(maxWidth: 80)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .onDelete(perform: viewModel.delete)
+                .onMove(perform: viewModel.move)
+                Button("Ավելացնել դաս", systemImage: "plus", action: viewModel.addRow)
+            }
+        }
+        .navigationTitle(viewModel.isReviewingScan ? "Ստուգում" : "Դասացուցակ")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Պահել") {
+                    viewModel.save()
+                    onSave()
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .topBarLeading) { EditButton() }
+        }
+    }
+}
