@@ -13,6 +13,7 @@ final class NotificationScheduler: NSObject {
     private var cancellables = Set<AnyCancellable>()
     private static let idPrefix = "evening-"
     private static let daysAhead = 14
+    private static let idFormatter = ISO8601DateFormatter()
 
     init(store: DataStore) {
         self.store = store
@@ -25,7 +26,7 @@ final class NotificationScheduler: NSObject {
             .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
             .sink { [weak self] in self?.rescheduleInBackground() }
             .store(in: &cancellables)
-        rescheduleInBackground()
+        // The first reschedule runs when the scene becomes active (see RootView), keeping launch light.
     }
 
     func requestAuthorization() async -> Bool {
@@ -50,18 +51,19 @@ final class NotificationScheduler: NSObject {
 
         let calendar = store.calendar
         let today = calendar.startOfDay(for: now)
+        let timetable = store.timetable() // fetched once, not per day
         for offset in 0..<Self.daysAhead {
             guard let eveningDay = calendar.date(byAdding: .day, value: offset, to: today),
                   let targetDay = calendar.date(byAdding: .day, value: 1, to: eveningDay) else { continue }
             let fireDate = eveningDay.adding(minutes: settings.minuteOfDay, calendar: calendar)
             guard fireDate > now else { continue }
 
-            let snapshot = store.snapshot(for: targetDay)
+            let snapshot = store.snapshot(for: targetDay, timetable: timetable)
             guard !snapshot.isEmpty else { continue }
 
             let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)
             let request = UNNotificationRequest(
-                identifier: Self.idPrefix + ISO8601DateFormatter().string(from: targetDay),
+                identifier: Self.idPrefix + Self.idFormatter.string(from: targetDay),
                 content: Self.content(for: snapshot),
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             )

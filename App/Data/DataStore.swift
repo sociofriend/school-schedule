@@ -39,8 +39,8 @@ final class DataStore {
 
     func timetable() -> Timetable { (try? reader.timetable()) ?? Timetable() }
 
-    func snapshot(for day: Date) -> DaySnapshot {
-        (try? reader.snapshot(for: day, timetable: timetable())) ?? .empty(day)
+    func snapshot(for day: Date, timetable: Timetable? = nil) -> DaySnapshot {
+        (try? reader.snapshot(for: day, timetable: timetable ?? self.timetable())) ?? .empty(day)
     }
 
     func replaceTimetable(with entries: [TimetableEntry], periods: [Int: PeriodRange] = [:]) {
