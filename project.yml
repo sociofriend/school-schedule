@@ -15,11 +15,21 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
     TARGETED_DEVICE_FAMILY: "1,2"
+packages:
+  SwiftyTesseract:
+    url: https://github.com/SwiftyTesseract/SwiftyTesseract
+    exactVersion: 4.0.1
 targets:
   SchoolSchedule:
     type: application
     platform: iOS
-    sources: [App, Shared]
+    sources:
+      - App
+      - Shared
+      # Folder reference (blue): SwiftyTesseract looks for Bundle.main/tessdata
+      - path: Resources/tessdata
+        type: folder
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:
@@ -51,6 +61,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
     dependencies:
       - target: SchoolScheduleWidget
+      - package: SwiftyTesseract
   SchoolScheduleWidget:
     type: app-extension
     platform: iOS

@@ -30,6 +30,16 @@ struct TimetableParser {
     typealias Header = (index: Int, weekday: Int, box: CGRect)
 
     func parse(_ items: [RecognizedText]) throws -> ParsedTimetable {
+        var result = try parseLayout(items)
+        result.entries = result.entries.map { entry in
+            var entry = entry
+            entry.subject = SubjectDictionary.correct(entry.subject)
+            return entry
+        }
+        return result
+    }
+
+    private func parseLayout(_ items: [RecognizedText]) throws -> ParsedTimetable {
         let headers: [Header] = items.indices.compactMap { index in
             WeekdayMatcher.weekday(in: items[index].text).map { (index: index, weekday: $0, box: items[index].box) }
         }

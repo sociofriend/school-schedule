@@ -17,7 +17,7 @@ final class ScanViewModel {
     private let recognizer: TextRecognizing
     private let parser = TimetableParser()
 
-    init(recognizer: TextRecognizing = VisionTextRecognizer()) {
+    init(recognizer: TextRecognizing = TesseractTextRecognizer()) {
         self.recognizer = recognizer
     }
 

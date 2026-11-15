@@ -106,3 +106,34 @@ final class TimetableCardParserTests: XCTestCase {
         XCTAssertTrue(CardLine.isStatus("Ներկա · 4"))
     }
 }
+
+final class TesseractOutputTests: XCTestCase {
+    func testSubjectDictionaryFixesTypicalTesseractErrors() {
+        XCTAssertEqual(SubjectDictionary.correct("Շանրաճաշիվ"), "Հանրահաշիվ")
+        XCTAssertEqual(SubjectDictionary.correct("ԸՇայաստանի պատմություն"), "Հայաստանի պատմություն")
+        XCTAssertEqual(SubjectDictionary.correct("Ըալոց լեզու"), "Հայոց լեզու")
+        XCTAssertEqual(SubjectDictionary.correct("Մաթեմատիկայի ճատուկ դասընթաց"), "Մաթեմատիկայի հատուկ դասընթաց")
+        XCTAssertEqual(SubjectDictionary.correct("Ռոբոտաշինություն"), "Ռոբոտաշինություն") // unknown stays
+    }
+
+    func testTagVariantsFromOCR() {
+        XCTAssertTrue(CardLine.isTag("Խմ -"))
+        XCTAssertTrue(CardLine.isTag("ՆՈՒ · Փոքրիկ սերմի"))
+        XCTAssertFalse(CardLine.isTag("Ֆիզ. դաստիարակություն"))
+    }
+
+    func testMissingHeaderIsInferredFromNeighbour() throws {
+        // Two columns; only the first header ("ուրբ" = Friday) was read.
+        func text(_ s: String, x: CGFloat, y: CGFloat) -> RecognizedText {
+            RecognizedText(text: s, box: CGRect(x: x, y: y, width: 0.1, height: 0.015))
+        }
+        let items = [
+            text("ուրբ", x: 0.05, y: 0.95),
+            text("08:15 - 09:00", x: 0.02, y: 0.8), text("Քիմիա", x: 0.02, y: 0.78), text("Ներկա", x: 0.02, y: 0.76),
+            text("09:05 - 09:50", x: 0.02, y: 0.7), text("Ֆիզիկա", x: 0.02, y: 0.68), text("Ներկա", x: 0.02, y: 0.66),
+            text("08:15 - 09:00", x: 0.52, y: 0.8), text("Շախմատ", x: 0.52, y: 0.78), text("Ներկա", x: 0.52, y: 0.76),
+        ]
+        let entries = try TimetableParser().parse(items).entries
+        XCTAssertEqual(Set(entries.map(\.weekday)), [6, 7])
+    }
+}
