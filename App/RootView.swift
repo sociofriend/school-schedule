@@ -33,7 +33,7 @@ struct RootView: View {
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
         .fontDesign(.rounded)
-        .onChange(of: scenePhase) { _, phase in
+        .onChange(of: scenePhase, initial: true) { _, phase in
             guard phase == .active else { return }
             today.reload()
             environment.notifications.rescheduleInBackground()
