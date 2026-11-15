@@ -27,10 +27,14 @@ struct TimetableParser {
         var errorDescription: String? { "Շաբաթվա օրերը չհաջողվեց ճանաչել։" }
     }
 
+    typealias Header = (index: Int, weekday: Int, box: CGRect)
+
     func parse(_ items: [RecognizedText]) throws -> ParsedTimetable {
-        let headers = items.indices.compactMap { index in
+        let headers: [Header] = items.indices.compactMap { index in
             WeekdayMatcher.weekday(in: items[index].text).map { (index: index, weekday: $0, box: items[index].box) }
         }
+        // E-diary style: columns of cards, each starting with a time range.
+        if let cards = parseCards(items, headers: headers), !cards.entries.isEmpty { return cards }
         guard !headers.isEmpty else { throw ParseError.noWeekdaysFound }
 
         let headerSpreadX = spread(headers.map(\.box.midX))
@@ -84,18 +88,18 @@ struct TimetableParser {
         return result
     }
 
-    private func spread(_ values: [CGFloat]) -> CGFloat {
+    func spread(_ values: [CGFloat]) -> CGFloat {
         (values.max() ?? 0) - (values.min() ?? 0)
     }
 
-    private func rowTolerance(_ sizes: [CGFloat]) -> CGFloat {
+    func rowTolerance(_ sizes: [CGFloat]) -> CGFloat {
         let sorted = sizes.sorted()
         guard !sorted.isEmpty else { return 0.02 }
         return max(sorted[sorted.count / 2] * 0.6, 0.005)
     }
 
     /// Returns cluster centers in ascending order.
-    private func cluster(_ values: [CGFloat], tolerance: CGFloat) -> [CGFloat] {
+    func cluster(_ values: [CGFloat], tolerance: CGFloat) -> [CGFloat] {
         var centers: [(sum: CGFloat, count: Int)] = []
         for value in values.sorted() {
             if let last = centers.last, value - last.sum / CGFloat(last.count) <= tolerance {
