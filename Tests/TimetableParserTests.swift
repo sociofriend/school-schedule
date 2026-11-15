@@ -54,3 +54,55 @@ final class TimetableParserTests: XCTestCase {
         XCTAssertEqual(SubjectCleaner.clean("10:50 - 11:35"), "")
     }
 }
+
+/// E-diary weekly view: columns of cards (time / subject / status), Armenian weekday abbreviations.
+final class TimetableCardParserTests: XCTestCase {
+    private let width: CGFloat = 2000, height: CGFloat = 1392
+
+    private func text(_ string: String, left: CGFloat, top: CGFloat, width w: CGFloat = 200) -> RecognizedText {
+        RecognizedText(text: string, box: CGRect(x: left / width, y: 1 - (top + 22) / height, width: w / width, height: 22 / height))
+    }
+
+    private func column(_ lines: [String], left: CGFloat) -> [RecognizedText] {
+        lines.enumerated().map { text($1, left: left, top: 258 + CGFloat($0) * 32, width: $1.count < 8 ? 120 : 220) }
+    }
+
+    private var items: [RecognizedText] {
+        let headers = zip(["երկ", "երք", "չոր", "հնգ", "ուրբ", "շաբ", "կիր"], [159, 436, 712, 989, 1266, 1542, 1819] as [CGFloat])
+            .map { text($0, left: $1 - 20, top: 47, width: 40) }
+        return headers + [text("9", left: 66, top: 129, width: 20), text("8 դաս", left: 40, top: 195, width: 60)]
+            + column(["08:15 – 09:00", "Մաթեմատիկայի", "հատուկ դասընթաց", "Ներկա",
+                      "09:05 – 09:50", "Ֆիզկուլտուրա", "Ներկա",
+                      "14:30 – 15:15", "Ֆրանսերեն", "Ներկա",
+                      "14:30 – 15:15", "ԽՄ ·", "առողջ ապրելակերպ", "Ներկա"], left: 53)
+            + column(["08:15 – 09:00", "Հանրահաշիվ", "Ներկա",
+                      "12:50 – 13:35", "ՆՈՒ ·", "Փոքրիկ սերմի", "Ներկա",
+                      "12:50 – 13:35", "Կենսաբանություն", "Ներկա · 4"], left: 884)
+            + column(["08:15 – 09:00", "Երկրաչափություն", "Ներկա"], left: 1160)
+    }
+
+    func testCardsWithHeaders() throws {
+        let result = try TimetableParser().parse(items)
+        XCTAssertEqual(Set(result.entries), [
+            TimetableEntry(weekday: 2, period: 1, subject: "Մաթեմատիկայի հատուկ դասընթաց"),
+            TimetableEntry(weekday: 2, period: 2, subject: "Ֆիզկուլտուրա"),
+            TimetableEntry(weekday: 2, period: 4, subject: "Ֆրանսերեն"),
+            TimetableEntry(weekday: 5, period: 1, subject: "Հանրահաշիվ"),
+            TimetableEntry(weekday: 5, period: 3, subject: "Կենսաբանություն"),
+            TimetableEntry(weekday: 6, period: 1, subject: "Երկրաչափություն"),
+        ])
+        XCTAssertEqual(result.periods[1], PeriodRange(start: 495, end: 540))
+    }
+
+    func testCardsWithoutReadableHeadersAssumeMondayFirst() throws {
+        let unreadable = items.filter { WeekdayMatcher.weekday(in: $0.text) == nil }
+        let weekdays = Set(try TimetableParser().parse(unreadable).entries.map(\.weekday))
+        XCTAssertEqual(weekdays, [2, 3, 4])
+    }
+
+    func testCardLines() {
+        XCTAssertTrue(CardLine.isTag("ԽՄ ·"))
+        XCTAssertFalse(CardLine.isTag("Ֆիզ. դաստիարակություն"))
+        XCTAssertTrue(CardLine.isStatus("Ներկա · 4"))
+    }
+}

@@ -11,6 +11,8 @@ final class ScanViewModel {
 
     private(set) var phase: Phase = .idle
     private(set) var result: ParsedTimetable?
+    /// Raw OCR lines, shown when parsing fails so the user sees what was read.
+    private(set) var recognizedText = ""
 
     private let recognizer: TextRecognizing
     private let parser = TimetableParser()
@@ -24,9 +26,11 @@ final class ScanViewModel {
         phase = .processing
         do {
             var merged = ParsedTimetable()
+            recognizedText = ""
             for image in images {
                 guard let cgImage = ImageTools.resized(image, maxDimension: 3000).cgImage else { continue }
                 let texts = try await recognizer.recognizeText(in: cgImage)
+                recognizedText += texts.map(\.text).joined(separator: "\n")
                 merged.merge(try parser.parse(texts))
             }
             guard !merged.entries.isEmpty else { throw TimetableParser.ParseError.noWeekdaysFound }
@@ -44,5 +48,6 @@ final class ScanViewModel {
     func reset() {
         phase = .idle
         result = nil
+        recognizedText = ""
     }
 }

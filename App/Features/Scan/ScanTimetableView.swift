@@ -53,6 +53,18 @@ struct ScanTimetableView: View {
             } description: {
                 Text(message)
             } actions: {
+                if !viewModel.recognizedText.isEmpty {
+                    DisclosureGroup("Ինչ կարդացի նկարից") {
+                        ScrollView {
+                            Text(viewModel.recognizedText)
+                                .font(.caption.monospaced())
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                        }
+                        .frame(maxHeight: 200)
+                    }
+                    .padding(.horizontal)
+                }
                 Button("Կրկին փորձել") { viewModel.reset() }.buttonStyle(.borderedProminent)
                 Button("Լրացնել ձեռքով") { showsManualEditor = true }
             }
@@ -62,7 +74,7 @@ struct ScanTimetableView: View {
     private var sourcePicker: some View {
         VStack(spacing: 16) {
             Image(systemName: "doc.viewfinder").font(.system(size: 64)).foregroundStyle(.tint)
-            Text("Լուսանկարիր դասացուցակը այնպես, որ շաբաթվա օրերը երևան։")
+            Text("Լուսանկարիր դասացուցակը կամ ընտրիր էլ. օրագրի screenshot-ը, որտեղ երևում են օրերն ու ժամերը։")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             if VNDocumentCameraViewController.isSupported {
@@ -71,7 +83,7 @@ struct ScanTimetableView: View {
                     .controlSize(.large)
             }
             PhotosPicker(selection: $pickerItem, matching: .images) {
-                Label("Ընտրել լուսանկար", systemImage: "photo")
+                Label("Ընտրել screenshot / նկար", systemImage: "photo.on.rectangle")
             }
             .buttonStyle(.bordered)
             Button("Լրացնել ձեռքով") { showsManualEditor = true }
