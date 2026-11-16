@@ -11,3 +11,4 @@ SHA-256 prefix, one-line purpose, types, imports, project types it uses; `+T` = 
    a file you read this session whose hash is unchanged needs no second read.
 3. After editing, run `Scripts/codemap.py` (rescans changed files only) and commit the map with
    the change. Fix a `purpose` by hand when a file's role changes; new files with no header comment are listed.
+- Structure questions (who uses what, dependencies): ask the graphify MCP (`.mcp.json`; graph in git-ignored `graphify-out/`). Re-run `graphify` after big changes.
