@@ -30,7 +30,7 @@ final class ScanViewModel {
             for image in images {
                 guard let cgImage = ImageTools.resized(image, maxDimension: 3000).cgImage else { continue }
                 let texts = try await recognizer.recognizeText(in: cgImage)
-                recognizedText += texts.map(\.text).joined(separator: "\n")
+                recognizedText += TextLayout.cells(from: texts).map(\.text).joined(separator: "\n")
                 merged.merge(try parser.parse(texts))
             }
             guard !merged.entries.isEmpty else { throw TimetableParser.ParseError.noWeekdaysFound }

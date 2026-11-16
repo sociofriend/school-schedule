@@ -9,6 +9,7 @@ protocol TextRecognizing: Sendable {
 
 /// On-device OCR with Tesseract and the Armenian model (`Resources/tessdata/hye.traineddata`).
 /// Apple Vision does not support Armenian script, so it is not used for timetables.
+/// Returns words: a text line can span several table columns, so the parser groups words into cells itself.
 struct TesseractTextRecognizer: TextRecognizing {
     var language = "hye"
 
@@ -17,7 +18,7 @@ struct TesseractTextRecognizer: TextRecognizing {
         return try await Task.detached(priority: .userInitiated) {
             let prepared = OCRPreprocessor.prepare(image)
             let tesseract = Tesseract(language: .custom(language), dataSource: Bundle.main, engineMode: .lstmOnly)
-            let (_, lines) = try tesseract.recognizedBlocks(from: UIImage(cgImage: prepared), for: .textline).get()
+            let (_, lines) = try tesseract.recognizedBlocks(from: UIImage(cgImage: prepared), for: .word).get()
             let width = CGFloat(prepared.width), height = CGFloat(prepared.height)
             return lines.compactMap { line in
                 let text = line.text.trimmingCharacters(in: .whitespacesAndNewlines)
