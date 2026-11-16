@@ -32,7 +32,7 @@ enum SubjectDictionary {
         return 1 - Double(editDistance(a, b)) / Double(longest)
     }
 
-    private static func editDistance(_ a: [Character], _ b: [Character]) -> Int {
+    static func editDistance(_ a: [Character], _ b: [Character]) -> Int {
         guard !a.isEmpty else { return b.count }
         guard !b.isEmpty else { return a.count }
         var previous = Array(0...b.count)

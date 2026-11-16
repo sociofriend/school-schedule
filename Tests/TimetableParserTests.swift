@@ -137,3 +137,83 @@ final class TesseractOutputTests: XCTestCase {
         XCTAssertEqual(Set(entries.map(\.weekday)), [6, 7])
     }
 }
+
+/// Armenian weekday forms and OCR look-alikes; word-level OCR grouped into a grid.
+final class ArmenianTimetableTests: XCTestCase {
+    private func word(_ string: String, x: CGFloat, y: CGFloat, w: CGFloat = 0.06) -> RecognizedText {
+        RecognizedText(text: string, box: CGRect(x: x - w / 2, y: y - 0.01, width: w, height: 0.02))
+    }
+
+    func testWeekdayFormsAndVariants() {
+        let expected: [String: Int] = [
+            "Երկուշաբթի": 2, "Երեքշաբթի": 3, "Չորեքշաբթի": 4, "Հինգշաբթի": 5, "Ուրբաթ": 6, "Շաբաթ": 7, "Կիրակի": 1,
+            "երկ.": 2, "երք.": 3, "երեք.": 3, "չորք.": 4, "չորեք.": 4, "հինգ.": 5, "ուրբ.": 6, "շաբ.": 7,
+            "Երկ․": 2, "ՉՈՐ": 4, "Շաբաթ։": 7, "Երկուշաբթի 12.09": 2,
+            "hինգշաբթի": 5, "nւրբաթ": 6, "ճինգշաբթի": 5, "Երկուշաբտի": 2, "ճինգ": 5,
+        ]
+        for (text, weekday) in expected {
+            XCTAssertEqual(WeekdayMatcher.weekday(in: text), weekday, text)
+        }
+    }
+
+    func testWeekdayDisambiguationAndSubjects() {
+        XCTAssertEqual(WeekdayMatcher.weekday(in: "շաբաթ"), 7)      // not a …շաբթի
+        XCTAssertEqual(WeekdayMatcher.weekday(in: "երկ"), 2)        // not երեք
+        XCTAssertNil(WeekdayMatcher.weekday(in: "որեքշաբթի"))       // as close to երեք… as to չորեք…
+        for subject in ["Երկրաչափություն", "Շախմատ", "Երգ", "Կերպարվեստ", "Հայոց լեզու", "Մաթեմատիկա"] {
+            XCTAssertNil(WeekdayMatcher.weekday(in: subject), subject)
+        }
+    }
+
+    func testSubjectCleanerDropsLabelsAndNoise() {
+        XCTAssertEqual(SubjectCleaner.clean("1-ին"), "")
+        XCTAssertEqual(SubjectCleaner.clean("2-րդ Քիմիա"), "Քիմիա")
+        XCTAssertEqual(SubjectCleaner.clean("l"), "")
+        XCTAssertEqual(SubjectCleaner.clean("Դաս"), "")
+    }
+
+    func testWordsGroupIntoCellsButHeaderRowSplits() {
+        let cells = TextLayout.cells(from: [
+            word("Երկ", x: 0.1, y: 0.9, w: 0.04), word("Երք", x: 0.16, y: 0.9, w: 0.04), word("Չոր", x: 0.22, y: 0.9, w: 0.04),
+            word("1", x: 0.05, y: 0.8, w: 0.02), word("Հայոց", x: 0.09, y: 0.8, w: 0.05), word("լեզու", x: 0.145, y: 0.8, w: 0.04),
+        ]).map(\.text)
+        XCTAssertEqual(Set(cells), ["Երկ", "Երք", "Չոր", "1", "Հայոց լեզու"])
+    }
+
+    func testGridFromWordsWithMissingHeaderWrappedCellAndLabelColumn() throws {
+        let items = [
+            word("Երկ.", x: 0.3, y: 0.9, w: 0.05), word("Երք․", x: 0.45, y: 0.9, w: 0.05),
+            word("Հնգ.", x: 0.75, y: 0.9, w: 0.05), word("Ուրբ.", x: 0.9, y: 0.9, w: 0.05), // Wednesday unread
+            word("1-ին", x: 0.04, y: 0.8, w: 0.05), word("8:30-9:15", x: 0.12, y: 0.8, w: 0.07),
+            word("Հայոց", x: 0.28, y: 0.8, w: 0.05), word("լեզու", x: 0.335, y: 0.8, w: 0.04),
+            word("Ֆիզիկա", x: 0.6, y: 0.8, w: 0.07), word("Քիմիա", x: 0.9, y: 0.8),
+            word("2-րդ", x: 0.04, y: 0.7, w: 0.05), word("9:25-10:10", x: 0.12, y: 0.7, w: 0.07),
+            word("Մաթեմատիկա", x: 0.45, y: 0.7, w: 0.1), word("l", x: 0.53, y: 0.7, w: 0.005),
+            word("Համաշխարհային", x: 0.75, y: 0.705, w: 0.1), word("պատմություն", x: 0.75, y: 0.685, w: 0.1),
+            word("3", x: 0.04, y: 0.6, w: 0.02), word("Երկրաչափություն", x: 0.3, y: 0.6, w: 0.1),
+        ]
+        let result = try TimetableParser().parse(items)
+        XCTAssertEqual(Set(result.entries), [
+            TimetableEntry(weekday: 2, period: 1, subject: "Հայոց լեզու"),
+            TimetableEntry(weekday: 4, period: 1, subject: "Ֆիզիկա"),
+            TimetableEntry(weekday: 6, period: 1, subject: "Քիմիա"),
+            TimetableEntry(weekday: 3, period: 2, subject: "Մաթեմատիկա"),
+            TimetableEntry(weekday: 5, period: 2, subject: "Համաշխարհային պատմություն"),
+            TimetableEntry(weekday: 2, period: 3, subject: "Երկրաչափություն"),
+        ])
+        XCTAssertEqual(result.periods[1], PeriodRange(start: 510, end: 555))
+        XCTAssertEqual(result.periods[2], PeriodRange(start: 565, end: 610))
+    }
+
+    func testDaysAsRowsWithFullNamesAndLookAlikes() throws {
+        let items = [
+            word("ԵՐԿՈՒՇԱԲԹԻ", x: 0.1, y: 0.8, w: 0.1), word("Մաթեմատիկա", x: 0.3, y: 0.8, w: 0.1), word("Արվեստ", x: 0.5, y: 0.8),
+            word("nւրբաթ", x: 0.1, y: 0.6, w: 0.1), word("Քիմիա", x: 0.3, y: 0.6),
+        ]
+        XCTAssertEqual(Set(try TimetableParser().parse(items).entries), [
+            TimetableEntry(weekday: 2, period: 1, subject: "Մաթեմատիկա"),
+            TimetableEntry(weekday: 2, period: 2, subject: "Արվեստ"),
+            TimetableEntry(weekday: 6, period: 1, subject: "Քիմիա"),
+        ])
+    }
+}
