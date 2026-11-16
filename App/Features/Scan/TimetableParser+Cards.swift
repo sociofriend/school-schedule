@@ -5,7 +5,15 @@ import Foundation
 /// one column per day, each lesson a card of `08:15 – 09:00` / subject (may wrap) / status (`Ներկա`).
 /// Cards starting with a short tag (`ԽՄ ·`, `ՆՈՒ ·`) are lesson topics, not subjects, and are skipped.
 extension TimetableParser {
-    func parseCards(_ items: [RecognizedText], headers: [Header]) -> ParsedTimetable? {
+    func parseCards(_ allItems: [RecognizedText], headers allHeaders: [Header]) -> ParsedTimetable? {
+        // Drop OCR artefacts such as card borders read as one very tall "line".
+        let heights = allItems.map(\.box.height).sorted()
+        let maxHeight = (heights.isEmpty ? 1 : heights[heights.count / 2]) * 3
+        let kept = allItems.indices.filter { allItems[$0].box.height <= maxHeight }
+        let items = kept.map { allItems[$0] }
+        let newIndex = Dictionary(uniqueKeysWithValues: kept.enumerated().map { ($1, $0) })
+        let headers: [Header] = allHeaders.compactMap { header in newIndex[header.index].map { (index: $0, weekday: header.weekday, box: header.box) } }
+
         let anchorIndices = items.indices.filter {
             TimeRangeMatcher.range(in: items[$0].text) != nil && SubjectCleaner.clean(items[$0].text).isEmpty
         }
@@ -58,21 +66,32 @@ extension TimetableParser {
         return result
     }
 
-    /// Each column takes the left-most weekday header that sits between its left edge and the next column;
-    /// without headers (e.g. OCR could not read them) columns are assumed Monday-first.
+    /// Each column takes the left-most weekday header between its left edge and the next column.
+    /// Columns whose header was not read are filled from their neighbours (school week order);
+    /// with no headers at all, columns are assumed Monday-first.
     private func weekdays(forColumnsAt edges: [CGFloat], tolerance: CGFloat, headers: [Header]) -> [Int] {
         let week = Weekday.schoolWeek + [1]
-        return edges.indices.map { index in
+        var result: [Int?] = edges.indices.map { index in
             let next = index + 1 < edges.count ? edges[index + 1] - tolerance : .greatestFiniteMagnitude
             let candidates = headers.filter { $0.box.midX >= edges[index] - tolerance && $0.box.midX < next }
-            return candidates.min { $0.box.midX < $1.box.midX }?.weekday ?? week[min(index, week.count - 1)]
+            return candidates.min { $0.box.midX < $1.box.midX }?.weekday
         }
+        guard let anchor = result.indices.first(where: { result[$0] != nil }),
+              let anchorPosition = week.firstIndex(of: result[anchor]!) else {
+            return edges.indices.map { week[min($0, week.count - 1)] }
+        }
+        for index in result.indices where result[index] == nil {
+            let position = anchorPosition + (index - anchor)
+            result[index] = week[min(max(position, 0), week.count - 1)]
+        }
+        return result.map { $0! }
     }
 }
 
 enum CardLine {
     private static let statusPrefixes = ["ներկա", "բացակա", "ուշաց", "present", "absent", "late", "присут", "отсут", "опозд"]
-    private static let tag = try! NSRegularExpression(pattern: #"^\s*\p{Lu}{1,4}\s*[·•∙.]"#)
+    /// A short code followed by a separator and nothing else, e.g. `ԽՄ ·` (OCR may read `·` as `-` or `.`).
+    private static let tag = try! NSRegularExpression(pattern: #"^\s*\S{1,4}\s*(?:[·•∙\-–]|\.\s*$)"#)
 
     static func isStatus(_ line: String) -> Bool {
         let value = line.lowercased().trimmingCharacters(in: .whitespaces)

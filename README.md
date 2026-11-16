@@ -11,11 +11,10 @@ Native iOS 17+ app: scan a timetable with the camera, per-lesson notes and photo
 - **MVVM**: `@Observable` view models per feature (`App/Features/*`), Combine for change streams, debounce and timers.
 - **Data**: SwiftData in the App Group (`Shared/Persistence`), shared with the widget. `DataStore` is the only writer; `ScheduleReader` is the read model reused by app, widget and notifications.
 - **Rules**: `Shared/Schedule/Timetable.swift` (pure, unit-tested): focus day (today until the last lesson ends, then the next school day), next lesson of a subject, widget refresh boundaries.
-- **Scan**: VisionKit document camera → Vision OCR → `TimetableParser` (layout-based grid) → editable review.
+- **Scan**: VisionKit document camera or screenshot → Tesseract OCR with the Armenian model (`Resources/tessdata/hye.traineddata`, via SwiftyTesseract; Apple Vision has no Armenian) → `TimetableParser` (grid or e-diary cards) → `SubjectDictionary` fixes → editable review.
 - **Notifications**: `NotificationScheduler` precomputes 14 evenings of "tomorrow" content and rebuilds on every save.
 - **Widget**: `Widget/` timeline entries at each lesson start/end.
 
-> Vision OCR may not recognise Armenian script on every iOS version; the review screen lets the user fix results.
 
 ## Design (kids first, teacher friendly)
 - Each subject has a color and SF Symbol (`Shared/Design/SubjectStyle.swift`), recognisable before reading.
