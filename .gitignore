@@ -35,3 +35,4 @@ Packages/
 .idea/
 *.swp
 *~
+graphify-out/
