@@ -1,18 +1,17 @@
 import SwiftUI
 
 /// First launch, one question per screen: hello → name → photo or character → style.
-/// Neutral system colors until the style step, which turns the whole screen into the picked theme.
+/// Neutral system colors until the style step, which turns the whole screen into the picked theme
+/// (in light or dark, following the system or the kid's choice).
 struct OnboardingView: View {
     @Bindable var profile: ProfileViewModel
     @State private var step = Step.hello
     @State private var celebrations = 0
     @FocusState private var isNameFocused: Bool
-    @Environment(\.colorScheme) private var systemScheme
 
     enum Step: Int, CaseIterable { case hello, name, avatar, style }
 
     private var isStyle: Bool { step == .style }
-    private var scheme: ColorScheme { isStyle ? profile.theme.colorScheme : systemScheme }
 
     var body: some View {
         ZStack {
@@ -28,10 +27,10 @@ struct OnboardingView: View {
             }
             ConfettiView(trigger: celebrations).ignoresSafeArea()
         }
-        .environment(\.colorScheme, scheme)
-        .preferredColorScheme(isStyle ? profile.theme.colorScheme : nil)
+        .preferredColorScheme(profile.appearance.colorScheme)
         .fontDesign(isStyle ? profile.theme.fontDesign : .rounded)
         .animation(.smooth(duration: 0.45), value: profile.theme)
+        .animation(.smooth(duration: 0.45), value: profile.appearance)
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: step)
         .sensoryFeedback(.selection, trigger: profile.theme)
         .interactiveDismissDisabled()
@@ -175,12 +174,14 @@ struct OnboardingView: View {
             }
             .scaleEffect(1.55)
             .frame(width: 156 * 1.55, height: 196 * 1.55)
-            .shadow(color: .black.opacity(0.25), radius: 24, y: 12)
+            .shadow(color: .black.opacity(0.18), radius: 24, y: 12)
             HStack(spacing: 22) {
                 ForEach(AppTheme.allCases) { theme in
                     ThemeSwatch(theme: theme, isSelected: profile.theme == theme) { profile.theme = theme }
                 }
             }
+            AppearancePicker(selection: $profile.appearance)
+                .padding(.horizontal, 40)
         }
     }
 
@@ -229,7 +230,7 @@ private struct ThemeSwatch: View {
                     .foregroundStyle(theme.accent)
                     .frame(width: 70, height: 70)
                     .background(theme.background, in: .circle)
-                    .overlay(Circle().strokeBorder(.white.opacity(0.25), lineWidth: 2))
+                    .overlay(Circle().strokeBorder(Color.primary.opacity(0.12), lineWidth: 2))
                     .padding(4)
                     .overlay(Circle().strokeBorder(isSelected ? Color.primary : .clear, lineWidth: 3))
                     .scaleEffect(isSelected ? 1.08 : 1)

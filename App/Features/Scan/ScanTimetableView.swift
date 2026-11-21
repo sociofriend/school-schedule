@@ -10,6 +10,7 @@ struct ScanTimetableView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var showsManualEditor = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
@@ -65,7 +66,7 @@ struct ScanTimetableView: View {
                     }
                     .padding(.horizontal)
                 }
-                Button("Կրկին փորձել") { viewModel.reset() }.buttonStyle(.borderedProminent)
+                Button("Կրկին փորձել") { viewModel.reset() }.buttonStyle(.borderedProminent).foregroundStyle(theme.onAccent)
                 Button("Լրացնել ձեռքով") { showsManualEditor = true }
             }
         }
@@ -80,6 +81,7 @@ struct ScanTimetableView: View {
             if VNDocumentCameraViewController.isSupported {
                 Button("Լուսանկարել", systemImage: "camera") { isCameraPresented = true }
                     .buttonStyle(.borderedProminent)
+                    .foregroundStyle(theme.onAccent)
                     .controlSize(.large)
             }
             PhotosPicker(selection: $pickerItem, matching: .images) {

@@ -30,36 +30,42 @@ enum AppTheme: String, CaseIterable, Identifiable {
         }
     }
 
+    // Every color is a light/dark pair, so each theme works in both appearances.
+
     var accent: Color {
         switch self {
-        case .apricot: Color(rgb: 0xFF7A3D)
-        case .chalkboard: Color(rgb: 0xFFD95A)
-        case .star: Color(rgb: 0xFF4F86)
+        case .apricot: .dynamic(light: 0xEE5A24, dark: 0xFF8A4C)
+        case .chalkboard: .dynamic(light: 0x1E7A52, dark: 0xFFD95A)
+        case .star: .dynamic(light: 0xD93673, dark: 0xFF5A8E)
         }
     }
 
     /// Screen background behind cards.
     var background: Color {
         switch self {
-        case .apricot: Color(rgb: 0xFFF8EC)
-        case .chalkboard: Color(rgb: 0x173D2E)
-        case .star: Color(rgb: 0x2B1B6B)
+        case .apricot: .dynamic(light: 0xFFF6E9, dark: 0x1C1511)
+        case .chalkboard: .dynamic(light: 0xEEF5EF, dark: 0x153828)
+        case .star: .dynamic(light: 0xF3EFFF, dark: 0x22165A)
         }
     }
 
     /// Card surface on top of `background`.
     var surface: Color {
         switch self {
-        case .apricot: .white
-        case .chalkboard: Color(rgb: 0x22553F)
-        case .star: Color(rgb: 0x3D2A8A)
+        case .apricot: .dynamic(light: 0xFFFFFF, dark: 0x2B211A)
+        case .chalkboard: .dynamic(light: 0xFFFFFF, dark: 0x1F4D39)
+        case .star: .dynamic(light: 0xFFFFFF, dark: 0x352684)
         }
     }
 
-    /// Text/icon color on top of `accent` (yellow chalk needs dark text).
-    var onAccent: Color { self == .chalkboard ? Color(rgb: 0x173D2E) : .white }
-
-    var colorScheme: ColorScheme { self == .apricot ? .light : .dark }
+    /// Text/icon color on top of `accent`; each pair meets at least 3:1 contrast (large bold text).
+    var onAccent: Color {
+        switch self {
+        case .apricot: .dynamic(light: 0xFFFFFF, dark: 0x1C1511)
+        case .chalkboard: .dynamic(light: 0xFFFFFF, dark: 0x153828)
+        case .star: .dynamic(light: 0xFFFFFF, dark: 0x1A0E3D)
+        }
+    }
 
     var fontDesign: Font.Design {
         switch self {
@@ -93,18 +99,67 @@ extension EnvironmentValues {
 }
 
 extension View {
-    /// Applies the theme to a whole screen tree: tint, color scheme, type and `\.theme`.
-    /// `nil` stays neutral (system colors and appearance), e.g. before the kid has picked one.
-    func themed(_ theme: AppTheme?) -> some View {
+    /// Applies the theme to a whole screen tree: tint, appearance, type and `\.theme`.
+    /// A `nil` theme stays neutral (system colors), e.g. before the kid has picked one.
+    func themed(_ theme: AppTheme?, appearance: Appearance = .system) -> some View {
         environment(\.theme, theme ?? .apricot)
             .tint(theme?.accent)
-            .preferredColorScheme(theme?.colorScheme)
+            .preferredColorScheme(appearance.colorScheme)
             .fontDesign(theme?.fontDesign ?? .rounded)
             .fontWidth(theme?.fontWidth)
     }
 }
 
+/// Light, dark, or follow the system.
+enum Appearance: String, CaseIterable, Identifiable {
+    case system, light, dark
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .system: "Ավտո"
+        case .light: "Լույս"
+        case .dark: "Մութ"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .system: "circle.lefthalf.filled"
+        case .light: "sun.max.fill"
+        case .dark: "moon.stars.fill"
+        }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
+/// Segmented light / dark / auto switch.
+struct AppearancePicker: View {
+    @Binding var selection: Appearance
+
+    var body: some View {
+        Picker("Տեսք", selection: $selection) {
+            ForEach(Appearance.allCases) { Label($0.title, systemImage: $0.symbol).tag($0) }
+        }
+        .pickerStyle(.segmented)
+        .sensoryFeedback(.selection, trigger: selection)
+    }
+}
+
 extension Color {
+    /// Resolves per trait collection: `light` in light mode, `dark` in dark mode.
+    static func dynamic(light: UInt32, dark: UInt32) -> Color {
+        Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(Color(rgb: dark)) : UIColor(Color(rgb: light)) })
+    }
+
     /// `0xRRGGBB` in sRGB.
     init(rgb: UInt32) {
         self.init(.sRGB, red: Double((rgb >> 16) & 0xFF) / 255,

@@ -26,6 +26,7 @@ struct SettingsView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .onChange(of: profile.theme) { profile.applyIcon() }
+                    AppearancePicker(selection: $profile.appearance)
                 } header: {
                     Text("Ոճ")
                 } footer: {
