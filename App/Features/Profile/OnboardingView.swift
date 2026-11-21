@@ -177,7 +177,11 @@ struct OnboardingView: View {
             .shadow(color: .black.opacity(0.18), radius: 24, y: 12)
             ScrollView(.horizontal) {
                 HStack(spacing: 16) {
-                    ForEach(AppTheme.allCases) { theme in
+                    ForEach(AppTheme.kids) { theme in
+                        ThemeSwatch(theme: theme, isSelected: profile.theme == theme) { profile.theme = theme }
+                    }
+                    Divider().frame(height: 70)
+                    ForEach(AppTheme.teens) { theme in
                         ThemeSwatch(theme: theme, isSelected: profile.theme == theme) { profile.theme = theme }
                     }
                 }
