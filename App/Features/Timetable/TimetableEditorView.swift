@@ -6,8 +6,8 @@ struct TimetableEditorView: View {
     @State private var editMode: EditMode = .inactive
     var onSave: () -> Void = {}
 
-    init(store: DataStore, scanned: ParsedTimetable? = nil, onSave: @escaping () -> Void = {}) {
-        _viewModel = State(initialValue: TimetableEditorViewModel(store: store, scanned: scanned))
+    init(store: DataStore, scanned: ParsedTimetable? = nil, grade: Int? = ProfileStore().grade, onSave: @escaping () -> Void = {}) {
+        _viewModel = State(initialValue: TimetableEditorViewModel(store: store, scanned: scanned, grade: grade))
         self.onSave = onSave
     }
 
@@ -34,6 +34,9 @@ struct TimetableEditorView: View {
                             .monospacedDigit().foregroundStyle(.secondary)
                         TextField("Առարկա (դատարկ՝ ազատ ժամ)", text: $row.subject)
                             .textInputAutocapitalization(.sentences)
+                        Button("Ընտրել ցանկից", systemImage: "list.bullet") { viewModel.pickerTarget = .row(row.id) }
+                            .labelStyle(.iconOnly)
+                            .buttonStyle(.borderless)
                         TextField("Սենյակ", text: $row.room)
                             .frame(maxWidth: 80)
                             .multilineTextAlignment(.trailing)
@@ -62,5 +65,9 @@ struct TimetableEditorView: View {
             ToolbarItem(placement: .topBarTrailing) { ArmenianEditButton(editMode: $editMode) }
         }
         .environment(\.editMode, $editMode)
+        .sheet(item: $viewModel.pickerTarget) { _ in
+            SubjectPickerView(grade: viewModel.grade, curriculum: viewModel.curriculumSubjects,
+                              own: viewModel.ownSubjects, onPick: viewModel.choose)
+        }
     }
 }

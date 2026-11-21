@@ -304,6 +304,14 @@ struct ProfileEditView: View {
             Section("Անուն") {
                 TextField("Անունդ", text: $profile.name).textContentType(.givenName)
             }
+            Section {
+                Picker("Դասարան", selection: $profile.grade) {
+                    Text("Չնշված").tag(Int?.none)
+                    ForEach(ArmenianCurriculum.grades, id: \.self) { Text(ArmenianCurriculum.gradeName($0)).tag(Int?.some($0)) }
+                }
+            } footer: {
+                Text("Դասացուցակ կազմելիս կառաջարկվեն քո դասարանի առարկաները։")
+            }
             if profile.photo != nil {
                 Section {
                     Button("Հեռացնել նկարը", systemImage: "trash", role: .destructive, action: profile.removePhoto)

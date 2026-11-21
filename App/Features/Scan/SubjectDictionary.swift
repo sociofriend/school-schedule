@@ -3,7 +3,9 @@ import Foundation
 /// Snaps OCR'd subject names to known Armenian school subjects.
 /// Tesseract often confuses `Հ/հ` with `Ը`, `Շ` or `ճ` in screen fonts; a close match to a known name wins.
 enum SubjectDictionary {
-    static let known = [
+    static let known = extra + ArmenianCurriculum.allSubjects.filter { !extra.contains($0) }
+
+    private static let extra = [
         "Հայոց լեզու", "Մայրենի", "Գրականություն", "Ռուսաց լեզու", "Անգլերեն", "Ֆրանսերեն", "Գերմաներեն",
         "Մաթեմատիկա", "Մաթեմատիկայի հատուկ դասընթաց", "Հանրահաշիվ", "Երկրաչափություն",
         "Ֆիզիկա", "Քիմիա", "Կենսաբանություն", "Աշխարհագրություն", "Բնագիտություն", "Ես և շրջակա աշխարհը",
