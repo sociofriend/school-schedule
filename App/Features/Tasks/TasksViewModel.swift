@@ -101,6 +101,6 @@ final class TasksViewModel {
     func delete(_ task: TaskItem) { store.delete(task) }
 
     func dueText(for task: TaskItem) -> String {
-        task.dueDate.formatted(.dateTime.weekday().day().month())
+        task.dueDate.armenianShortDay
     }
 }

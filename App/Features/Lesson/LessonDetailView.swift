@@ -50,7 +50,7 @@ struct LessonDetailView: View {
             Section("📚 Տնային") {
                 ForEach(viewModel.tasks) { task in
                     TaskRow(title: task.title, subject: "", isDone: task.isDone,
-                            dueText: task.dueDate.formatted(.dateTime.weekday().day().month())) { viewModel.toggle(task) }
+                            dueText: task.dueDate.armenianShortDay) { viewModel.toggle(task) }
                         .swipeActions { Button("Ջնջել", role: .destructive) { viewModel.delete(task) } }
                 }
                 TextField("Նոր տնային", text: $viewModel.newTaskTitle)
@@ -64,6 +64,7 @@ struct LessonDetailView: View {
         }
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .armenianBackButton()
         .tint(SubjectStyle(subject: viewModel.title).color)
         .toolbar {
             ToolbarItem(placement: .principal) {

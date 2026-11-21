@@ -11,6 +11,7 @@ struct MonthCalendarView: UIViewRepresentable {
     func makeUIView(context: Context) -> UICalendarView {
         let view = UICalendarView()
         view.calendar = .current
+        view.locale = .armenian // month and weekday names in Armenian whatever the device region
         view.fontDesign = .rounded
         view.delegate = context.coordinator
         let selectionBehavior = UICalendarSelectionSingleDate(delegate: context.coordinator)

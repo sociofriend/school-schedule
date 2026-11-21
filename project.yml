@@ -7,6 +7,9 @@ options:
   createIntermediateGroups: true
 settings:
   base:
+    # Armenian-only app: Xcode extracts SwiftUI literals into App/Resources/Localizable.xcstrings on build.
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     DEVELOPMENT_TEAM: ""            # ← your Apple Team ID
     BUNDLE_ID_BASE: am.dasacucak    # ← your bundle id
     APP_GROUP_ID: group.$(BUNDLE_ID_BASE)
@@ -34,6 +37,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Դասացուցակ
+        CFBundleLocalizations: [hy]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         AppGroupIdentifier: $(APP_GROUP_ID)
@@ -72,6 +76,7 @@ targets:
       path: Widget/Info.plist
       properties:
         CFBundleDisplayName: Դասացուցակ
+        CFBundleLocalizations: [hy]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         AppGroupIdentifier: $(APP_GROUP_ID)

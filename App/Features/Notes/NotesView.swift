@@ -21,7 +21,7 @@ struct NotesView: View {
                     .listRowBackground(Color.clear)
                 }
                 ForEach(viewModel.groups) { group in
-                    Section(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))) {
+                    Section(group.day.armenianLongDay) {
                         ForEach(group.notes) { note in
                             NavigationLink(value: LessonRoute(day: note.day, subject: note.subject)) {
                                 NoteRow(note: note)

@@ -76,7 +76,7 @@ struct BackpackSheet: View {
                         }
                     }
                 } header: {
-                    Text(viewModel.day.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                    Text(viewModel.day.armenianLongDay)
                 }
 
                 Section("Իմ իրերը") {
