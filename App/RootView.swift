@@ -35,7 +35,7 @@ struct RootView: View {
             SettingsView(viewModel: settings, profile: profile, store: environment.store)
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
-        .themed(profile.theme)
+        .themed(profile.isComplete ? profile.theme : nil)
         .fullScreenCover(isPresented: .constant(!profile.isComplete)) { OnboardingView(profile: profile) }
         .onChange(of: scenePhase, initial: true) { _, phase in
             guard phase == .active else { return }

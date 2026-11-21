@@ -21,10 +21,15 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Ոճ") {
+                Section {
                     ThemePicker(selection: $profile.theme)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                         .onChange(of: profile.theme) { profile.applyIcon() }
+                } header: {
+                    Text("Ոճ")
+                } footer: {
+                    Text("Ոճի հետ փոխվում է նաև հավելվածի պատկերակը։")
                 }
 
                 Section {

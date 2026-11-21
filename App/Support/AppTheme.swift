@@ -94,12 +94,13 @@ extension EnvironmentValues {
 
 extension View {
     /// Applies the theme to a whole screen tree: tint, color scheme, type and `\.theme`.
-    func themed(_ theme: AppTheme) -> some View {
-        environment(\.theme, theme)
-            .tint(theme.accent)
-            .preferredColorScheme(theme.colorScheme)
-            .fontDesign(theme.fontDesign)
-            .fontWidth(theme.fontWidth)
+    /// `nil` stays neutral (system colors and appearance), e.g. before the kid has picked one.
+    func themed(_ theme: AppTheme?) -> some View {
+        environment(\.theme, theme ?? .apricot)
+            .tint(theme?.accent)
+            .preferredColorScheme(theme?.colorScheme)
+            .fontDesign(theme?.fontDesign ?? .rounded)
+            .fontWidth(theme?.fontWidth)
     }
 }
 
