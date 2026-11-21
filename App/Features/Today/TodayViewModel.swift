@@ -10,14 +10,19 @@ final class TodayViewModel {
     private(set) var currentPeriod: Int?
     private(set) var hasTimetable = false
     private(set) var subjectsWithNotes: Set<String> = []
+    /// Today's phase for the hero card; `nil` when showing another day or bell times are unknown.
+    private(set) var phase: DayPhase?
+    private(set) var lessonsDone = 0
+    let backpack: BackpackViewModel
     /// Increments each time the last open task is ticked off (drives the confetti).
     private(set) var celebrations = 0
 
     private let store: DataStore
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
-    init(store: DataStore) {
+    init(store: DataStore, backpack: BackpackViewModel) {
         self.store = store
+        self.backpack = backpack
         store.changes
             .merge(with: Timer.publish(every: 60, on: .main, in: .common).autoconnect().map { _ in () })
             .sink { [weak self] in self?.reload() }
@@ -46,6 +51,9 @@ final class TodayViewModel {
         isToday = store.calendar.isDate(day, inSameDayAs: now)
         snapshot = store.snapshot(for: day)
         currentPeriod = isToday ? timetable.currentOrNextPeriod(at: now, calendar: store.calendar) : nil
+        phase = isToday ? timetable.phase(at: now, calendar: store.calendar) : nil
+        lessonsDone = isToday ? timetable.lessonsDone(at: now, calendar: store.calendar) : 0
+        backpack.update(day: day, lessons: snapshot.lessons)
         subjectsWithNotes = Set(store.notes(on: day).map(\.subject))
         if hadOpenTasks, snapshot.remainingTasks.isEmpty, !snapshot.tasks.isEmpty { celebrations += 1 }
     }

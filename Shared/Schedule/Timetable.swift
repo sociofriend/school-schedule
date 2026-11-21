@@ -23,6 +23,14 @@ struct LessonSlot: Hashable, Sendable, Identifiable {
     let end: Date?
 }
 
+/// Where the school day stands at a moment.
+enum DayPhase: Hashable, Sendable {
+    case beforeSchool(first: LessonSlot)
+    case inLesson(LessonSlot, next: LessonSlot?)
+    case onBreak(next: LessonSlot)
+    case finished
+}
+
 /// Value-type timetable with all scheduling rules. Shared by app, widget and notifications.
 struct Timetable: Sendable {
     var entries: [TimetableEntry] = []
@@ -97,6 +105,21 @@ struct Timetable: Sendable {
     /// Lesson running at `now`, or the next one today if between lessons.
     func currentOrNextPeriod(at now: Date, calendar: Calendar = .current) -> Int? {
         slots(on: now, calendar: calendar).first { ($0.end ?? .distantPast) > now }?.period
+    }
+
+    /// Where today stands at `now`, for the "now" card. `nil` when there are no lessons or no bell times.
+    func phase(at now: Date, calendar: Calendar = .current) -> DayPhase? {
+        let slots = slots(on: now, calendar: calendar).filter { $0.start != nil && $0.end != nil }
+        guard !slots.isEmpty else { return nil }
+        guard let index = slots.firstIndex(where: { $0.end! > now }) else { return .finished }
+        let slot = slots[index]
+        if slot.start! <= now { return .inLesson(slot, next: slots.indices.contains(index + 1) ? slots[index + 1] : nil) }
+        return index == 0 ? .beforeSchool(first: slot) : .onBreak(next: slot)
+    }
+
+    /// Lessons that have already ended today.
+    func lessonsDone(at now: Date, calendar: Calendar = .current) -> Int {
+        slots(on: now, calendar: calendar).filter { ($0.end ?? .distantFuture) <= now }.count
     }
 
     /// Times when the widget must refresh today (each lesson start/end after `now`).

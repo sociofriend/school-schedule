@@ -16,6 +16,9 @@ struct TasksView: View {
                         .frame(width: 60, height: 60)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Այս շաբաթ՝ \(viewModel.starsThisWeek) աստղ").font(.headline)
+                            if viewModel.streak > 0 {
+                                Text("🔥 \(viewModel.streak) օր անընդմեջ").font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
+                            }
                             Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
                         }
                     }
@@ -71,7 +74,8 @@ struct TasksView: View {
     }
 }
 
-private struct AddTaskSheet: View {
+/// New homework form, shared by Tasks and Today.
+struct AddTaskSheet: View {
     @Bindable var viewModel: TasksViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focused: Bool
@@ -79,7 +83,18 @@ private struct AddTaskSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Ինչ անել", text: $viewModel.draftTitle).focused($focused)
+                Section {
+                    TextField("Ինչ անել", text: $viewModel.draftTitle, axis: .vertical).focused($focused)
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(TasksViewModel.quickTitles, id: \.self) { title in
+                                Button(title) { viewModel.draftTitle = title }
+                                    .buttonStyle(.bordered).buttonBorderShape(.capsule)
+                            }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                }
                 Picker("Առարկա", selection: $viewModel.draftSubject) {
                     Text("Առանց առարկայի").tag("")
                     ForEach(viewModel.subjects, id: \.self) { Text($0).tag($0) }

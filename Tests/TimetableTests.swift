@@ -40,4 +40,27 @@ final class TimetableTests: XCTestCase {
         XCTAssertEqual(timetable.nextOccurrence(of: "Math", after: date(16, 10), calendar: calendar), calendar.startOfDay(for: date(18, 0)))
         XCTAssertEqual(timetable.nextOccurrence(of: "Art", after: date(16, 10), calendar: calendar), calendar.startOfDay(for: date(23, 0)))
     }
+
+    func testPhase() {
+        let slots = timetable.slots(on: date(16, 0), calendar: calendar)
+        XCTAssertEqual(timetable.phase(at: date(16, 8), calendar: calendar), .beforeSchool(first: slots[0]))
+        XCTAssertEqual(timetable.phase(at: date(16, 9, 10), calendar: calendar), .inLesson(slots[0], next: slots[1]))
+        XCTAssertEqual(timetable.phase(at: date(16, 9, 50), calendar: calendar), .onBreak(next: slots[1]))
+        XCTAssertEqual(timetable.phase(at: date(16, 10), calendar: calendar), .inLesson(slots[1], next: nil))
+        XCTAssertEqual(timetable.phase(at: date(16, 11), calendar: calendar), .finished)
+        XCTAssertNil(timetable.phase(at: date(17, 9), calendar: calendar))
+        XCTAssertEqual(timetable.lessonsDone(at: date(16, 9, 50), calendar: calendar), 1)
+    }
+
+    func testHomeworkStreak() {
+        let today = calendar.startOfDay(for: date(20, 12))
+        func day(_ d: Int) -> Date { calendar.startOfDay(for: date(d, 0)) }
+        // 17 all done, 18 has no tasks (skipped), 19 all done, 20 (today) still open → not counted, not breaking.
+        let tasks: [(due: Date, isDone: Bool)] = [
+            (day(16), false), (day(17), true), (day(17), true), (day(19), true), (day(20), false),
+        ]
+        XCTAssertEqual(HomeworkStreak.days(tasks: tasks, today: today, calendar: calendar), 2)
+        XCTAssertEqual(HomeworkStreak.days(tasks: tasks + [(day(19), false)], today: today, calendar: calendar), 0)
+        XCTAssertEqual(HomeworkStreak.days(tasks: [(day(20), true)], today: today, calendar: calendar), 1)
+    }
 }

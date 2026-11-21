@@ -7,13 +7,15 @@ struct ScheduleEntry: TimelineEntry {
     let isToday: Bool
     let currentPeriod: Int?
     let hasTimetable: Bool
+    var phase: DayPhase?
 
     static let placeholder: ScheduleEntry = {
         let now = Date()
         let lessons = ["Մաթեմատիկա", "Հայոց լեզու", "Անգլերեն", "Ֆիզիկա", "Պատմություն"].enumerated().map { index, subject in
             LessonSlot(period: index + 1, subject: subject, room: "", start: now.adding(minutes: index * 55), end: now.adding(minutes: index * 55 + 45))
         }
-        return ScheduleEntry(date: now, snapshot: DaySnapshot(date: now, lessons: lessons, tasks: []), isToday: true, currentPeriod: 1, hasTimetable: true)
+        return ScheduleEntry(date: now, snapshot: DaySnapshot(date: now, lessons: lessons, tasks: []), isToday: true, currentPeriod: 1, hasTimetable: true,
+                             phase: .inLesson(lessons[0], next: lessons[1]))
     }()
 }
 
@@ -46,7 +48,8 @@ struct ScheduleProvider: TimelineProvider {
                 snapshot: try reader.snapshot(for: day, timetable: timetable),
                 isToday: isToday,
                 currentPeriod: isToday ? timetable.currentOrNextPeriod(at: date, calendar: calendar) : nil,
-                hasTimetable: !timetable.isEmpty
+                hasTimetable: !timetable.isEmpty,
+                phase: isToday ? timetable.phase(at: date, calendar: calendar) : nil
             )
         }
     }

@@ -12,7 +12,7 @@ struct RootView: View {
     init(environment: AppEnvironment) {
         self.environment = environment
         let store = environment.store
-        _today = State(initialValue: TodayViewModel(store: store))
+        _today = State(initialValue: TodayViewModel(store: store, backpack: BackpackViewModel()))
         _calendar = State(initialValue: CalendarViewModel(store: store))
         _tasks = State(initialValue: TasksViewModel(store: store))
         _notes = State(initialValue: NotesViewModel(store: store))
@@ -21,12 +21,13 @@ struct RootView: View {
 
     var body: some View {
         TabView {
-            TodayView(viewModel: today, store: environment.store)
-                .tabItem { Label("Այսօր", systemImage: "sun.max") }
+            TodayView(viewModel: today, tasks: tasks, store: environment.store)
+                .tabItem { Label("Այսօր", systemImage: "sun.max.fill") }
             CalendarScreen(viewModel: calendar, store: environment.store)
                 .tabItem { Label("Օրացույց", systemImage: "calendar") }
             TasksView(viewModel: tasks)
                 .tabItem { Label("Անելիքներ", systemImage: "checklist") }
+                .badge(tasks.dueSoonCount)
             NotesView(viewModel: notes, store: environment.store)
                 .tabItem { Label("Գրառումներ", systemImage: "note.text") }
             SettingsView(viewModel: settings, store: environment.store)

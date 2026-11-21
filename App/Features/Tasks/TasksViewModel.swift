@@ -13,9 +13,13 @@ final class TasksViewModel {
 
     private(set) var groups: [TaskGroup] = []
     private(set) var remainingCount = 0
+    /// Open tasks due by tomorrow (tab badge), so far-off homework does not nag.
+    private(set) var dueSoonCount = 0
     /// Stars earned: tasks completed in the last 7 days.
     private(set) var starsThisWeek = 0
     private(set) var celebrations = 0
+    /// Days in a row with all homework done.
+    private(set) var streak = 0
     private(set) var subjects: [String] = []
     var showsCompleted = false {
         didSet { reload() }
@@ -46,8 +50,10 @@ final class TasksViewModel {
         let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) ?? now
         if remainingCount > 0, open.isEmpty, !all.isEmpty { celebrations += 1 }
         remainingCount = open.count
+        dueSoonCount = open.filter { $0.dueDate <= tomorrow }.count
         starsThisWeek = all.filter { ($0.completedAt ?? .distantPast) > weekAgo }.count
         subjects = store.timetable().subjects
+        streak = HomeworkStreak.days(tasks: all.map { (due: $0.dueDate, isDone: $0.isDone) }, today: now, calendar: calendar)
 
         var result = [
             TaskGroup(id: "overdue", title: "Ուշացած", tasks: open.filter { $0.dueDate < today }),
@@ -63,10 +69,14 @@ final class TasksViewModel {
         groups = result.filter { !$0.tasks.isEmpty }
     }
 
-    func prepareDraft() {
+    /// One-tap titles so kids type less.
+    static let quickTitles = ["Վարժություն", "Կարդալ", "Անգիր սովորել", "Խնդիրներ", "Շարադրություն", "Նախագիծ"]
+
+    func prepareDraft(subject: String = "") {
         draftTitle = ""
-        draftSubject = ""
+        draftSubject = subject
         draftDue = store.calendar.date(byAdding: .day, value: 1, to: .now) ?? .now
+        subjectChanged()
     }
 
     /// Picking a subject moves the due date to its next lesson.
