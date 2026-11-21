@@ -1,94 +1,130 @@
 import SwiftUI
 
-/// The kid's chosen look (branding concepts): colors, type and app icon.
+/// The kid's chosen look, one per app logo: colors, type and app icon, each in light and dark.
 enum AppTheme: String, CaseIterable, Identifiable {
-    case apricot, chalkboard, star
+    case buddy, backpack, letter, scan, clock
 
     var id: String { rawValue }
 
+    /// Themes from before the logo set map to the closest new one.
+    init?(stored raw: String) {
+        switch raw {
+        case "apricot": self = .buddy
+        case "chalkboard": self = .letter
+        case "star": self = .clock
+        default: self.init(rawValue: raw)
+        }
+    }
+
     var name: String {
         switch self {
-        case .apricot: "Ծիրան"
-        case .chalkboard: "Կավիճ"
-        case .star: "Աստղիկ"
+        case .buddy: "Ընկերիկ"
+        case .backpack: "Պայուսակ"
+        case .letter: "Դ"
+        case .scan: "Սկան"
+        case .clock: "Զարթուցիչ"
         }
     }
 
     var tagline: String {
         switch self {
-        case .apricot: "Արևոտ և ջերմ"
-        case .chalkboard: "Հանգիստ դասարան"
-        case .star: "Տիեզերական արկած"
+        case .buddy: "Ժպտացող օրացույց"
+        case .backpack: "Պատրաստ ենք դասի"
+        case .letter: "Մաքուր և վստահ"
+        case .scan: "Նկարիր և վերջ"
+        case .clock: "Երեկոյան հիշեցում"
         }
     }
 
     var symbol: String {
         switch self {
-        case .apricot: "sun.max.fill"
-        case .chalkboard: "pencil.and.scribble"
-        case .star: "sparkles"
+        case .buddy: "face.smiling.inverse"
+        case .backpack: "backpack.fill"
+        case .letter: "checkmark.seal.fill"
+        case .scan: "camera.viewfinder"
+        case .clock: "alarm.fill"
         }
     }
 
-    // Every color is a light/dark pair, so each theme works in both appearances.
+    /// Logo image (light/dark) in `Assets.xcassets/ThemeLogos`.
+    var logoName: String {
+        switch self {
+        case .buddy: "LogoBuddy"
+        case .backpack: "LogoBackpack"
+        case .letter: "LogoLetter"
+        case .scan: "LogoScan"
+        case .clock: "LogoClock"
+        }
+    }
+
+    // Every color is a light/dark pair taken from the theme's logo.
 
     var accent: Color {
         switch self {
-        case .apricot: .dynamic(light: 0xEE5A24, dark: 0xFF8A4C)
-        case .chalkboard: .dynamic(light: 0x1E7A52, dark: 0xFFD95A)
-        case .star: .dynamic(light: 0xD93673, dark: 0xFF5A8E)
+        case .buddy: .dynamic(light: 0xE2385F, dark: 0xFF7A93)
+        case .backpack: .dynamic(light: 0xD9472B, dark: 0xFF7A59)
+        case .letter: .dynamic(light: 0x4B3BE6, dark: 0x8C9BFF)
+        case .scan: .dynamic(light: 0x2F55D4, dark: 0x5CE6D8)
+        case .clock: .dynamic(light: 0x6A3FC4, dark: 0xFF9A6B)
         }
     }
 
     /// Screen background behind cards.
     var background: Color {
         switch self {
-        case .apricot: .dynamic(light: 0xFFF6E9, dark: 0x1C1511)
-        case .chalkboard: .dynamic(light: 0xEEF5EF, dark: 0x153828)
-        case .star: .dynamic(light: 0xF3EFFF, dark: 0x22165A)
+        case .buddy: .dynamic(light: 0xFFF7DC, dark: 0x1C1606)
+        case .backpack: .dynamic(light: 0xE8F8F5, dark: 0x0C1F1E)
+        case .letter: .dynamic(light: 0xF1F2FF, dark: 0x110D33)
+        case .scan: .dynamic(light: 0xEEF3FC, dark: 0x0A1030)
+        case .clock: .dynamic(light: 0xF6F0FF, dark: 0x150D2E)
         }
     }
 
     /// Card surface on top of `background`.
     var surface: Color {
         switch self {
-        case .apricot: .dynamic(light: 0xFFFFFF, dark: 0x2B211A)
-        case .chalkboard: .dynamic(light: 0xFFFFFF, dark: 0x1F4D39)
-        case .star: .dynamic(light: 0xFFFFFF, dark: 0x352684)
+        case .buddy: .dynamic(light: 0xFFFFFF, dark: 0x2C2410)
+        case .backpack: .dynamic(light: 0xFFFFFF, dark: 0x163331)
+        case .letter: .dynamic(light: 0xFFFFFF, dark: 0x1D1850)
+        case .scan: .dynamic(light: 0xFFFFFF, dark: 0x16204A)
+        case .clock: .dynamic(light: 0xFFFFFF, dark: 0x251A4A)
         }
     }
 
-    /// Text/icon color on top of `accent`; each pair meets at least 3:1 contrast (large bold text).
+    /// Text/icon color on top of `accent`; white on the light accents, the dark background on the bright dark-mode accents.
     var onAccent: Color {
         switch self {
-        case .apricot: .dynamic(light: 0xFFFFFF, dark: 0x1C1511)
-        case .chalkboard: .dynamic(light: 0xFFFFFF, dark: 0x153828)
-        case .star: .dynamic(light: 0xFFFFFF, dark: 0x1A0E3D)
+        case .buddy: .dynamic(light: 0xFFFFFF, dark: 0x1C1606)
+        case .backpack: .dynamic(light: 0xFFFFFF, dark: 0x0C1F1E)
+        case .letter: .dynamic(light: 0xFFFFFF, dark: 0x110D33)
+        case .scan: .dynamic(light: 0xFFFFFF, dark: 0x0A1030)
+        case .clock: .dynamic(light: 0xFFFFFF, dark: 0x150D2E)
         }
     }
 
     var fontDesign: Font.Design {
         switch self {
-        case .apricot: .rounded
-        case .chalkboard: .serif
-        case .star: .default
+        case .buddy, .backpack, .clock: .rounded
+        case .letter, .scan: .default
         }
     }
 
-    var fontWidth: Font.Width { self == .star ? .condensed : .standard }
+    var fontWidth: Font.Width { self == .scan ? .condensed : .standard }
 
-    /// Alternate icon set in the asset catalog; `nil` is the primary `AppIcon`.
+    /// Alternate icon set in the asset catalog (light, dark and tinted); `nil` is the primary `AppIcon`.
     var iconName: String? {
         switch self {
-        case .apricot: nil
-        case .chalkboard: "AppIconChalkboard"
-        case .star: "AppIconStar"
+        case .buddy: nil
+        case .backpack: "AppIconBackpack"
+        case .letter: "AppIconLetter"
+        case .scan: "AppIconScan"
+        case .clock: "AppIconClock"
         }
     }
 }
 
 private struct ThemeKey: EnvironmentKey {
-    static let defaultValue = AppTheme.apricot
+    static let defaultValue = AppTheme.buddy
 }
 
 extension EnvironmentValues {
@@ -102,7 +138,7 @@ extension View {
     /// Applies the theme to a whole screen tree: tint, appearance, type and `\.theme`.
     /// A `nil` theme stays neutral (system colors), e.g. before the kid has picked one.
     func themed(_ theme: AppTheme?, appearance: Appearance = .system) -> some View {
-        environment(\.theme, theme ?? .apricot)
+        environment(\.theme, theme ?? .buddy)
             .tint(theme?.accent)
             .preferredColorScheme(appearance.colorScheme)
             .fontDesign(theme?.fontDesign ?? .rounded)

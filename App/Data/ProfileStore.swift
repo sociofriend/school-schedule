@@ -17,7 +17,7 @@ struct ProfileStore {
     }
 
     var theme: AppTheme {
-        get { defaults.string(forKey: Self.themeKey).flatMap(AppTheme.init(rawValue:)) ?? .apricot }
+        get { defaults.string(forKey: Self.themeKey).flatMap(AppTheme.init(stored:)) ?? .buddy }
         nonmutating set { defaults.set(newValue.rawValue, forKey: Self.themeKey) }
     }
 

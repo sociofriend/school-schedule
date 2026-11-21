@@ -1,0 +1,36 @@
+<svg data-k="1" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><linearGradient id="bgd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#123A38"/><stop offset="1" stop-color="#051615"/></linearGradient><filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="30"/></filter><filter id="blur8"><feGaussianBlur stdDeviation="8"/></filter><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="ds" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#064e4b" flood-opacity="0.45"/></filter><filter id="sm" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#7a2410" flood-opacity="0.35"/></filter>
+<radialGradient id="bg" cx=".3" cy=".2" r="1.1"><stop offset="0" stop-color="#6FF0DE"/><stop offset=".55" stop-color="#19B8AE"/><stop offset="1" stop-color="#0B7F86"/></radialGradient>
+<linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A5B"/><stop offset=".6" stop-color="#F45B3A"/><stop offset="1" stop-color="#D8402A"/></linearGradient>
+<linearGradient id="pk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB547"/><stop offset="1" stop-color="#F59322"/></linearGradient>
+<linearGradient id="pen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5B7CFF"/><stop offset=".5" stop-color="#8FA6FF"/><stop offset="1" stop-color="#4A63E0"/></linearGradient>
+<linearGradient id="rul" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#FFC93C"/></linearGradient></defs>
+<rect width="1024" height="1024" fill="url(#bgd)"/><circle cx="512" cy="540" r="360" fill="#2EC4B6" opacity=".28" filter="url(#blur)"/>
+<circle cx="250" cy="200" r="260" fill="#fff" opacity=".012" filter="url(#blur)"/>
+<path transform="translate(170 250) scale(1.1)" d="M0 -40 C4 -8 8 -4 40 0 C8 4 4 8 0 40 C-4 8 -8 4 -40 0 C-8 -4 -4 -8 0 -40Z" fill="#fff" opacity="0.9"/><path transform="translate(860 300) scale(0.7)" d="M0 -40 C4 -8 8 -4 40 0 C8 4 4 8 0 40 C-4 8 -8 4 -40 0 C-8 -4 -4 -8 0 -40Z" fill="#FFF3B0" opacity="0.95"/><path transform="translate(840 800) scale(0.9)" d="M0 -40 C4 -8 8 -4 40 0 C8 4 4 8 0 40 C-4 8 -8 4 -40 0 C-8 -4 -4 -8 0 -40Z" fill="#fff" opacity="0.7"/><path transform="translate(150 760) scale(0.5)" d="M0 -40 C4 -8 8 -4 40 0 C8 4 4 8 0 40 C-4 8 -8 4 -40 0 C-8 -4 -4 -8 0 -40Z" fill="#fff" opacity="0.6"/>
+<ellipse cx="512" cy="905" rx="300" ry="38" fill="#04423F" opacity=".35" filter="url(#blur8)"/>
+<!-- pencil & ruler poking out -->
+<g transform="rotate(-14 420 260)"><rect x="392" y="120" width="58" height="230" rx="8" fill="url(#pen)"/><path d="M392 120 L421 62 L450 120Z" fill="#F7D9A8"/><path d="M412 80 L421 62 L430 80Z" fill="#2B2D42"/><rect x="392" y="320" width="58" height="30" fill="#FF8FA3"/></g>
+<g transform="rotate(10 620 260)"><rect x="580" y="110" width="74" height="250" rx="10" fill="url(#rul)"/><rect x="580" y="130" width="44" height="7" rx="3" fill="#C98A12"/><rect x="580" y="156" width="30" height="7" rx="3" fill="#C98A12"/><rect x="580" y="182" width="44" height="7" rx="3" fill="#C98A12"/><rect x="580" y="208" width="30" height="7" rx="3" fill="#C98A12"/><rect x="580" y="234" width="44" height="7" rx="3" fill="#C98A12"/><rect x="580" y="260" width="30" height="7" rx="3" fill="#C98A12"/><rect x="580" y="286" width="44" height="7" rx="3" fill="#C98A12"/></g>
+<!-- handle -->
+<path d="M420 268 q0 -110 92 -110 q92 0 92 110" fill="none" stroke="#5A6378" stroke-width="42" stroke-linecap="round"/>
+<!-- straps behind -->
+<rect x="232" y="380" width="60" height="330" rx="30" fill="#B8331F"/><rect x="732" y="380" width="60" height="330" rx="30" fill="#B8331F"/>
+<g filter="url(#ds)">
+<path d="M262 420 C262 300 352 240 512 240 C672 240 762 300 762 420 V790 C762 850 720 880 660 880 H364 C304 880 262 850 262 790 Z" fill="url(#body)"/>
+</g>
+<path d="M300 400 C300 310 380 272 512 272 C600 272 660 288 700 320" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="26" stroke-linecap="round"/>
+<!-- flap -->
+<path d="M262 420 C262 300 352 240 512 240 C672 240 762 300 762 420 C700 470 324 470 262 420Z" fill="#FF9B6E"/>
+<path d="M262 420 C324 470 700 470 762 420" fill="none" stroke="#C7381F" stroke-width="10" stroke-dasharray="2 22" stroke-linecap="round"/>
+<rect x="482" y="430" width="60" height="90" rx="18" fill="#2B2D42"/><rect x="496" y="470" width="32" height="34" rx="10" fill="#FFC93C"/>
+<!-- front pocket = timetable -->
+<g filter="url(#sm)"><rect x="330" y="540" width="364" height="290" rx="62" fill="url(#pk)"/></g>
+<rect x="358" y="566" width="308" height="238" rx="40" fill="#FFF8EC"/>
+<rect x="358" y="566" width="308" height="60" rx="30" fill="#2B2D42"/><rect x="358" y="596" width="308" height="30" fill="#2B2D42"/>
+<circle cx="400" cy="597" r="9" fill="#FF6B6B"/><circle cx="448" cy="597" r="9" fill="#FFC93C"/><circle cx="496" cy="597" r="9" fill="#2EC4B6"/><circle cx="544" cy="597" r="9" fill="#8B7CF6"/><circle cx="592" cy="597" r="9" fill="#5B7CFF"/><circle cx="640" cy="597" r="9" fill="#FF9F43"/><circle cx="688" cy="597" r="9" fill="#fff"/>
+<path d="M392 664 l16 16 l30 -34" fill="none" stroke="#2EC4B6" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/><rect x="458" y="656" width="170" height="20" rx="10" fill="#E9DCC7"/>
+<path d="M392 718 l16 16 l30 -34" fill="none" stroke="#2EC4B6" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/><rect x="458" y="710" width="130" height="20" rx="10" fill="#E9DCC7"/>
+<rect x="394" y="756" width="40" height="40" rx="11" fill="none" stroke="#8B7CF6" stroke-width="9"/><rect x="458" y="766" width="150" height="20" rx="10" fill="#E9DCC7"/>
+<!-- star sticker -->
+<g transform="translate(700 360) rotate(14)"><path d="M0 -58 L17 -18 L60 -16 L27 12 L38 54 L0 30 L-38 54 L-27 12 L-60 -16 L-17 -18Z" fill="#FFE066" stroke="#fff" stroke-width="12" stroke-linejoin="round"/></g>
+</svg>
