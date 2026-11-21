@@ -52,7 +52,7 @@
 "App/Support/LessonRoute.swift": {"sha256": "25530ad30ed7c852", "purpose": "Navigation value for a lesson on a concrete day.", "types": ["LessonRoute"], "imports": ["Foundation"]},
 "App/Support/Playful.swift": {"sha256": "4d19613b8c505ce4", "purpose": "Friendly greeting by time of day.", "types": ["Greeting", "ProgressRing", "CardBackground", "BouncyButtonStyle", "ConfettiView", "+View"], "imports": ["SwiftUI"], "uses": ["Content", "Task"]},
 "App/Support/ThemeMotion.swift": {"sha256": "3022eef86d65b5d7", "purpose": "Each theme's set of small animations, used across the app through the `themed…` modifiers below.", "types": ["ThemeMotion", "Effect", "DoneEffect", "IdleEffect", "PopValues", "Pop", "Drift", "Rise", "Ambient", "AmbientMotion", "EmojiText", "+AppTheme", "+View"], "imports": ["SwiftUI"], "uses": ["Card", "Content"]},
-"App/Support/ThemedTabBar.swift": {"sha256": "15ea4216c3950a12", "purpose": "The app's main tabs.", "types": ["AppTab", "ThemedTabBar"], "imports": ["SwiftUI"]},
+"App/Support/ThemedTabBar.swift": {"sha256": "15ea4216c3950a12", "purpose": "App tabs and the custom tab bar whose icons play the theme animation on selection.", "types": ["AppTab", "ThemedTabBar"], "imports": ["SwiftUI"]},
 "CLAUDE.md": {"sha256": "32754919cdfb8fcc", "purpose": "Դասացուցակ (School Schedule)"},
 "README.md": {"sha256": "568e82807e10a5e3", "purpose": "Դասացուցակ (School Schedule)"},
 "Scripts/codemap.py": {"sha256": "3d24d5f35265b3fd", "purpose": "Keeps .claude/codemap/index.json in step with the repo's files.", "types": ["files", "digest", "header", "title", "first_doc", "tests_of", "scan", "main"], "imports": ["hashlib"]},
