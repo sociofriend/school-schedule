@@ -16,10 +16,16 @@ struct TasksView: View {
                             Text("⭐️").font(.title2)
                         }
                         .frame(width: 60, height: 60)
+                        .themedPop(trigger: viewModel.starsThisWeek)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Այս շաբաթ՝ \(viewModel.starsThisWeek) աստղ").font(.headline)
                             if viewModel.streak > 0 {
-                                Text("🔥 \(viewModel.streak) օր անընդմեջ").font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
+                                Label {
+                                    Text("\(viewModel.streak) օր անընդմեջ")
+                                } icon: {
+                                    Image(systemName: "flame.fill").themedIdle().themedDoneEffect(value: viewModel.streak)
+                                }
+                                .font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
                             }
                             Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
                         }
@@ -42,7 +48,11 @@ struct TasksView: View {
             .overlay {
                 if viewModel.groups.isEmpty {
                     ContentUnavailableView {
-                        Label("Ամեն ինչ արված է 🏆", systemImage: "party.popper.fill")
+                        Label {
+                            Text("Ամեն ինչ արված է 🏆")
+                        } icon: {
+                            Image(systemName: "party.popper.fill").themedFloat()
+                        }
                     } description: {
                         Text("Նոր անելիք ավելացրու + կոճակով։")
                     }

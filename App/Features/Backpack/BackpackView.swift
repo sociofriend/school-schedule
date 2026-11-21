@@ -11,6 +11,7 @@ struct BackpackCard: View {
                 ZStack {
                     ProgressRing(progress: viewModel.progress, lineWidth: 6, tint: .orange)
                     Text(viewModel.isComplete ? "✅" : "🎒").font(.title2)
+                        .themedPop(trigger: viewModel.isComplete)
                 }
                 .frame(width: 54, height: 54)
                 VStack(alignment: .leading, spacing: 2) {
@@ -62,6 +63,7 @@ struct BackpackSheet: View {
                                     .font(.title2)
                                     .foregroundStyle(item.isPacked ? Color.green : Color.secondary)
                                     .contentTransition(.symbolEffect(.replace))
+                                    .themedDoneEffect(value: item.isPacked)
                             }
                             .frame(minHeight: 48)
                             .contentShape(.rect)

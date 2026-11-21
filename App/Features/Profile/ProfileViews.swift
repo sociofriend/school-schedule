@@ -224,6 +224,7 @@ struct ThemePreviewCard: View {
                     .font(.title3)
                     .foregroundStyle(isSelected ? Color.primary : Color(.tertiaryLabel))
                     .contentTransition(.symbolEffect(.replace))
+                    .themedDoneEffect(value: isSelected)
             }
             .padding(.horizontal, 4)
         }
