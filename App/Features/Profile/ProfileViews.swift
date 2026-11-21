@@ -213,7 +213,8 @@ struct ThemePreviewCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ThemeMiniScreen(theme: theme) { Circle().fill(theme.accent.gradient) }
-            HStack(alignment: .firstTextBaseline) {
+            HStack {
+                ThemeLogo(theme: theme, size: 36)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(theme.name).font(.headline).fontDesign(theme.fontDesign).fontWidth(theme.fontWidth)
                     Text(theme.tagline).font(.caption).foregroundStyle(.secondary)
@@ -234,6 +235,20 @@ struct ThemePreviewCard: View {
         }
         .scaleEffect(isSelected ? 1 : 0.96)
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isSelected)
+    }
+}
+
+/// The theme's app logo; follows light/dark like the home-screen icon.
+struct ThemeLogo: View {
+    let theme: AppTheme
+    var size: CGFloat
+
+    var body: some View {
+        Image(theme.logoName)
+            .resizable()
+            .frame(width: size, height: size)
+            .clipShape(.rect(cornerRadius: size * 0.225, style: .continuous))
+            .accessibilityHidden(true)
     }
 }
 

@@ -175,11 +175,16 @@ struct OnboardingView: View {
             .scaleEffect(1.55)
             .frame(width: 156 * 1.55, height: 196 * 1.55)
             .shadow(color: .black.opacity(0.18), radius: 24, y: 12)
-            HStack(spacing: 22) {
-                ForEach(AppTheme.allCases) { theme in
-                    ThemeSwatch(theme: theme, isSelected: profile.theme == theme) { profile.theme = theme }
+            ScrollView(.horizontal) {
+                HStack(spacing: 16) {
+                    ForEach(AppTheme.allCases) { theme in
+                        ThemeSwatch(theme: theme, isSelected: profile.theme == theme) { profile.theme = theme }
+                    }
                 }
+                .padding(.vertical, 8)
             }
+            .contentMargins(.horizontal, 24, for: .scrollContent)
+            .scrollIndicators(.hidden)
             AppearancePicker(selection: $profile.appearance)
                 .padding(.horizontal, 40)
         }
@@ -216,7 +221,7 @@ struct OnboardingView: View {
     }
 }
 
-/// Round theme button: theme background with its accent symbol, name underneath.
+/// Theme button: its app logo, name underneath.
 private struct ThemeSwatch: View {
     let theme: AppTheme
     let isSelected: Bool
@@ -225,14 +230,9 @@ private struct ThemeSwatch: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Image(systemName: theme.symbol)
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(theme.accent)
-                    .frame(width: 70, height: 70)
-                    .background(theme.background, in: .circle)
-                    .overlay(Circle().strokeBorder(Color.primary.opacity(0.12), lineWidth: 2))
+                ThemeLogo(theme: theme, size: 70)
                     .padding(4)
-                    .overlay(Circle().strokeBorder(isSelected ? Color.primary : .clear, lineWidth: 3))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(isSelected ? Color.primary : .clear, lineWidth: 3))
                     .scaleEffect(isSelected ? 1.08 : 1)
                 Text(theme.name).font(.subheadline.bold()).fontDesign(theme.fontDesign)
             }
