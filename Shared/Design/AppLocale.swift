@@ -6,8 +6,11 @@ extension Locale {
 }
 
 extension Date {
-    /// "09:00"
-    var armenianTime: String { formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute().locale(.armenian)) }
+    /// Always zero-padded 24-hour "09:05", the one time format used app-wide (same as `PeriodRange.format`).
+    func armenianTime(calendar: Calendar = .current) -> String {
+        let c = calendar.dateComponents([.hour, .minute], from: self)
+        return PeriodRange.format((c.hour ?? 0) * 60 + (c.minute ?? 0))
+    }
     /// "երկուշաբթի, 16 նոյեմբերի"
     var armenianLongDay: String { formatted(.dateTime.weekday(.wide).day().month(.wide).locale(.armenian)) }
     /// "երկ, 16 նոյ"

@@ -9,6 +9,7 @@ struct RootView: View {
     @State private var settings: SettingsViewModel
     @State private var profile: ProfileViewModel
     @State private var inbox: ShareInboxViewModel
+    @State private var tab: AppTab = .today
     @Environment(\.scenePhase) private var scenePhase
 
     init(environment: AppEnvironment) {
@@ -24,18 +25,26 @@ struct RootView: View {
     }
 
     var body: some View {
-        TabView {
+        TabView(selection: $tab) {
             TodayView(viewModel: today, tasks: tasks, profile: profile, store: environment.store)
-                .tabItem { Label("Այսօր", systemImage: "sun.max.fill") }
+                .tag(AppTab.today)
+                .toolbar(.hidden, for: .tabBar)
             CalendarScreen(viewModel: calendar, store: environment.store)
-                .tabItem { Label("Օրացույց", systemImage: "calendar") }
+                .tag(AppTab.calendar)
+                .toolbar(.hidden, for: .tabBar)
             TasksView(viewModel: tasks, sender: profile.name)
-                .tabItem { Label("Անելիքներ", systemImage: "checklist") }
-                .badge(tasks.dueSoonCount)
+                .tag(AppTab.tasks)
+                .toolbar(.hidden, for: .tabBar)
             NotesView(viewModel: notes, store: environment.store)
-                .tabItem { Label("Գրառումներ", systemImage: "note.text") }
+                .tag(AppTab.notes)
+                .toolbar(.hidden, for: .tabBar)
             SettingsView(viewModel: settings, profile: profile, store: environment.store)
-                .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
+                .tag(AppTab.settings)
+                .toolbar(.hidden, for: .tabBar)
+        }
+        // Own tab bar (system tabs hidden above) so the icons can play the theme's selection animation.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            ThemedTabBar(selection: $tab, badges: [.tasks: tasks.dueSoonCount])
         }
         .themed(profile.isComplete ? profile.theme : nil, appearance: profile.appearance)
         .fullScreenCover(isPresented: .constant(!profile.isComplete)) { OnboardingView(profile: profile) }

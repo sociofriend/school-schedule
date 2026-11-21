@@ -71,7 +71,7 @@ struct ScheduleWidgetView: View {
         if let until = featured.until, until > entry.date {
             Text(timerInterval: entry.date...until, countsDown: true).monospacedDigit()
         } else if let start = featured.lesson.start {
-            Text(start, style: .time)
+            Text(start.armenianTime())
         }
     }
 
@@ -135,7 +135,7 @@ struct ScheduleWidgetView: View {
                 Text(lesson.subject).font(.caption.weight(isCurrent ? .bold : .regular)).lineLimit(1)
                 Spacer(minLength: 0)
                 if family != .systemSmall, let start = lesson.start {
-                    Text(start, style: .time).font(.caption2).foregroundStyle(.secondary)
+                    Text(start.armenianTime()).font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .foregroundStyle(isCurrent ? AnyShapeStyle(TintShapeStyle()) : AnyShapeStyle(HierarchicalShapeStyle.primary))
