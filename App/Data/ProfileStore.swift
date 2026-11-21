@@ -10,7 +10,7 @@ struct ProfileStore {
     private static let completeKey = "profile.complete"
     private static let emojiKey = "profile.emoji"
     private static let appearanceKey = "profile.appearance"
-    private static let gradeKey = "profile.grade"
+    private static let gradeKey = AppGroup.gradeKey
 
     var name: String {
         get { defaults.string(forKey: Self.nameKey) ?? "" }

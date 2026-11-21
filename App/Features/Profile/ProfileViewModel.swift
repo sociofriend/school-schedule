@@ -1,5 +1,6 @@
 import Observation
 import UIKit
+import WidgetKit
 
 /// The kid's name, avatar (photo or character) and theme; also switches the app icon to match the theme.
 @MainActor
@@ -7,7 +8,7 @@ import UIKit
 final class ProfileViewModel {
     var name: String { didSet { store.name = name.trimmingCharacters(in: .whitespacesAndNewlines) } }
     /// Changing it only changes suggested subjects; the timetable is never touched.
-    var grade: Int? { didSet { store.grade = grade } }
+    var grade: Int? { didSet { store.grade = grade; WidgetCenter.shared.reloadAllTimelines() } }
     var theme: AppTheme { didSet { store.theme = theme } }
     var appearance: Appearance { didSet { store.appearance = appearance } }
     private(set) var photo: UIImage?

@@ -38,6 +38,7 @@ struct RootView: View {
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
         .themed(profile.isComplete ? profile.theme : nil, appearance: profile.appearance)
+        .environment(\.schoolGrade, profile.grade)
         .fullScreenCover(isPresented: .constant(!profile.isComplete)) { OnboardingView(profile: profile) }
         // A share opened before onboarding waits until the profile is done.
         .sheet(item: Binding(get: { profile.isComplete ? inbox.package : nil }, set: { if $0 == nil { inbox.decline() } })) {
