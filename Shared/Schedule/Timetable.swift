@@ -32,7 +32,7 @@ enum DayPhase: Hashable, Sendable {
 }
 
 /// Value-type timetable with all scheduling rules. Shared by app, widget and notifications.
-struct Timetable: Sendable, Codable {
+struct Timetable: Hashable, Sendable, Codable {
     var entries: [TimetableEntry] = []
     var periods: [Int: PeriodRange] = [:]
 

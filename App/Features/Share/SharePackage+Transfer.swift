@@ -10,7 +10,7 @@ extension UTType {
 extension SharePackage: Transferable {
     static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(contentType: .dasacucakShare) { try $0.encoded() } importing: { try SharePackage.decode($0) }
-            .suggestedFileName { $0.title }
+            .suggestedFileName("Դասացուցակ")
         // Apps that cannot take the file (e.g. Notes) get readable text.
         ProxyRepresentation(exporting: \.readableText)
     }
