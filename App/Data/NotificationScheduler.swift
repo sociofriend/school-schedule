@@ -85,6 +85,7 @@ final class NotificationScheduler: NSObject {
             lines.append("Անելիքներ՝ \(remaining.count)")
             lines += remaining.map { "☐ \($0.subject.isEmpty ? "" : "\($0.subject)․ ")\($0.title)" }
         }
+        if !snapshot.lessons.isEmpty { lines.append("🎒 Չմոռանաս հավաքել պայուսակը") }
         content.body = lines.joined(separator: "\n")
         content.sound = .default
         content.threadIdentifier = "evening"

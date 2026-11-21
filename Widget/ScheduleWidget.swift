@@ -40,22 +40,59 @@ struct ScheduleWidgetView: View {
         }
     }
 
+    private typealias Featured = (lesson: LessonSlot, label: String, until: Date?)
+
+    /// The lesson to feature now, its label and the moment its countdown runs to.
+    private var featured: Featured? {
+        switch entry.phase {
+        case let .inLesson(lesson, _): return (lesson: lesson, label: "Հիմա", until: lesson.end)
+        case let .onBreak(next): return (lesson: next, label: "Դասամիջոց · հետո", until: next.start)
+        case let .beforeSchool(first): return (lesson: first, label: "Առաջին դասը", until: first.start)
+        case .finished, nil:
+            guard let first = entry.snapshot.lessons.first else { return nil }
+            return (lesson: first, label: entry.isToday ? "Առաջին դասը" : "Վաղը առաջինը", until: nil)
+        }
+    }
+
     private var rectangular: some View {
-        let lesson = entry.snapshot.lessons.first { $0.period == entry.currentPeriod } ?? entry.snapshot.lessons.first
-        return VStack(alignment: .leading) {
-            Text(title).font(.caption2).widgetAccentable()
-            if let lesson {
-                Text("\(lesson.period). \(lesson.subject)").font(.headline).lineLimit(1)
-                if let start = lesson.start { Text(start, style: .time).font(.caption) }
+        VStack(alignment: .leading) {
+            if let featured {
+                Text(featured.label).font(.caption2).widgetAccentable()
+                Text(featured.lesson.subject).font(.headline).lineLimit(1)
+                countdown(featured).font(.caption)
+            } else {
+                Text(title).font(.caption2).widgetAccentable()
             }
         }
     }
 
+    @ViewBuilder private func countdown(_ featured: Featured) -> some View {
+        if let until = featured.until, until > entry.date {
+            Text(timerInterval: entry.date...until, countsDown: true).monospacedDigit()
+        } else if let start = featured.lesson.start {
+            Text(start, style: .time)
+        }
+    }
+
     private var small: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            header
-            lessons(limit: 5)
-            Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: 6) {
+            if let featured {
+                HStack(spacing: 6) {
+                    SubjectIcon(subject: featured.lesson.subject, size: 28).widgetAccentable()
+                    Text(featured.label).font(.caption2.weight(.bold)).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Text(featured.lesson.subject).font(.headline).lineLimit(2).minimumScaleFactor(0.8)
+                countdown(featured).font(.caption.weight(.semibold)).foregroundStyle(.tint)
+                Spacer(minLength: 0)
+                let rest = entry.snapshot.lessons.filter { $0.period > featured.lesson.period }.prefix(2)
+                ForEach(rest) { lesson in
+                    Text("\(lesson.period). \(lesson.subject)").font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
+            } else {
+                header
+                lessons(limit: 5)
+                Spacer(minLength: 0)
+            }
         }
     }
 

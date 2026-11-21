@@ -2,8 +2,11 @@ import SwiftUI
 
 struct TodayView: View {
     let viewModel: TodayViewModel
+    let tasks: TasksViewModel
     let store: DataStore
     @State private var isScanning = false
+    @State private var isPacking = false
+    @State private var isAddingTask = false
 
     var body: some View {
         NavigationStack {
@@ -11,6 +14,11 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     header
                     if viewModel.hasTimetable {
+                        // Evenings (showing tomorrow) lead with packing; school hours lead with "now".
+                        if !viewModel.isToday { backpackCard }
+                        NowCard(phase: viewModel.phase, lessons: viewModel.snapshot.lessons,
+                                lessonsDone: viewModel.lessonsDone, isToday: viewModel.isToday)
+                        if viewModel.isToday { backpackCard }
                         lessonsSection
                         tasksSection
                     } else {
@@ -27,6 +35,8 @@ struct TodayView: View {
             .navigationDestination(for: LessonRoute.self) { LessonDetailView(store: store, route: $0) }
             .refreshable { viewModel.reload() }
             .sheet(isPresented: $isScanning) { ScanTimetableView(store: store) }
+            .sheet(isPresented: $isPacking) { BackpackSheet(viewModel: viewModel.backpack) }
+            .sheet(isPresented: $isAddingTask) { AddTaskSheet(viewModel: tasks) }
         }
     }
 
@@ -56,9 +66,6 @@ struct TodayView: View {
     private var lessonsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionTitle(text: "Դասեր", symbol: "backpack.fill", tint: .blue)
-            if viewModel.snapshot.lessons.isEmpty {
-                Text("Դասեր չկան, ազատ օր է 🎉").foregroundStyle(.secondary).card(tint: .blue)
-            }
             ForEach(viewModel.snapshot.lessons) { lesson in
                 let isCurrent = lesson.period == viewModel.currentPeriod
                 NavigationLink(value: LessonRoute(day: viewModel.snapshot.date, subject: lesson.subject)) {
@@ -74,13 +81,37 @@ struct TodayView: View {
                         }
                 }
                 .buttonStyle(BouncyButtonStyle())
+                .contextMenu {
+                    Button("Ավելացնել տնային", systemImage: "plus") { addTask(subject: lesson.subject) }
+                }
             }
         }
     }
 
+    @ViewBuilder private var backpackCard: some View {
+        if !viewModel.backpack.items.isEmpty {
+            BackpackCard(viewModel: viewModel.backpack) { isPacking = true }
+        }
+    }
+
+    private func addTask(subject: String = "") {
+        tasks.prepareDraft(subject: subject)
+        isAddingTask = true
+    }
+
     private var tasksSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionTitle(text: "Անելիքներ", symbol: "checklist", tint: .green)
+            HStack {
+                SectionTitle(text: "Անելիքներ", symbol: "checklist", tint: .green)
+                Spacer()
+                Button("Ավելացնել", systemImage: "plus") { addTask() }
+                    .labelStyle(.iconOnly)
+                    .font(.title3.bold())
+                    .frame(width: 44, height: 44)
+                    .background(Color.green.opacity(0.15), in: .circle)
+                    .foregroundStyle(.green)
+                    .buttonStyle(BouncyButtonStyle())
+            }
             Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
             VStack(spacing: 4) {
                 ForEach(viewModel.snapshot.tasks) { task in
