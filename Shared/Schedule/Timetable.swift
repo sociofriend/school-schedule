@@ -6,7 +6,7 @@ struct PeriodRange: Hashable, Sendable, Codable {
     var end: Int
 }
 
-struct TimetableEntry: Hashable, Sendable {
+struct TimetableEntry: Hashable, Sendable, Codable {
     var weekday: Int
     var period: Int
     var subject: String
@@ -32,7 +32,7 @@ enum DayPhase: Hashable, Sendable {
 }
 
 /// Value-type timetable with all scheduling rules. Shared by app, widget and notifications.
-struct Timetable: Sendable {
+struct Timetable: Sendable, Codable {
     var entries: [TimetableEntry] = []
     var periods: [Int: PeriodRange] = [:]
 

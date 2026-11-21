@@ -51,6 +51,12 @@ final class SettingsViewModel {
 
     // MARK: Bell schedule
 
+    /// The kid's timetable to send to a friend; `nil` until there is one.
+    var shareableTimetable: Timetable? {
+        let timetable = store.timetable()
+        return timetable.isEmpty ? nil : timetable
+    }
+
     func loadPeriods() {
         periods = store.periodTimes().map {
             PeriodDraft(period: $0.period,

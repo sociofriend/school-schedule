@@ -2,6 +2,8 @@ import SwiftUI
 
 struct TasksView: View {
     @Bindable var viewModel: TasksViewModel
+    /// The kid's name, shown to whoever receives a shared task.
+    var sender = ""
     @State private var isAdding = false
 
     var body: some View {
@@ -31,6 +33,8 @@ struct TasksView: View {
                             TaskRow(title: task.title, subject: task.subject, isDone: task.isDone,
                                     dueText: viewModel.dueText(for: task)) { viewModel.toggle(task) }
                                 .swipeActions { Button("Ջնջել", role: .destructive) { viewModel.delete(task) } }
+                                .swipeActions(edge: .leading) { share(task) }
+                                .contextMenu { share(task) }
                         }
                     }
                 }
@@ -71,6 +75,16 @@ struct TasksView: View {
             }
             .sheet(isPresented: $isAdding) { AddTaskSheet(viewModel: viewModel) }
         }
+    }
+}
+
+private extension TasksView {
+    func share(_ task: TaskItem) -> some View {
+        let package = SharePackage(task: task, sender: sender)
+        return ShareLink(item: package, message: Text(package.readableText), preview: SharePreview(package.title)) {
+            Label("Ուղարկել ընկերոջը", systemImage: "square.and.arrow.up")
+        }
+        .tint(.blue)
     }
 }
 
