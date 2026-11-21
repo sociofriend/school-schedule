@@ -3,9 +3,12 @@ import SwiftUI
 struct NotesView: View {
     @Bindable var viewModel: NotesViewModel
     let store: DataStore
+    @State private var path: [LessonRoute] = []
+    @State private var isAdding = false
+    @State private var pendingRoute: LessonRoute?
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 if !viewModel.subjects.isEmpty {
                     ScrollView(.horizontal) {
@@ -40,7 +43,10 @@ struct NotesView: View {
                                 Image(systemName: "note.text").themedFloat()
                             }
                         } description: {
-                            Text("Բացիր դասը և գրիր կամ լուսանկարիր։")
+                            Text("Գրիր, լուսանկարիր գրատախտակը կամ սկանավորիր տետրը։")
+                        } actions: {
+                            Button("Նոր գրառում", systemImage: "plus", action: startAdding)
+                                .buttonStyle(.borderedProminent).buttonBorderShape(.capsule)
                         }
                     } else {
                         ContentUnavailableView.search(text: viewModel.searchText)
@@ -50,7 +56,24 @@ struct NotesView: View {
             .searchable(text: $viewModel.searchText, prompt: "Որոնել գրառումներում")
             .navigationTitle("Գրառումներ")
             .navigationDestination(for: LessonRoute.self) { LessonDetailView(store: store, route: $0) }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Նոր գրառում", systemImage: "plus", action: startAdding)
+                }
+            }
+            // Push after the sheet is gone, so the two transitions don't collide.
+            .sheet(isPresented: $isAdding, onDismiss: {
+                if let route = pendingRoute { path.append(route) }
+                pendingRoute = nil
+            }) {
+                NewNoteSheet(viewModel: viewModel) { pendingRoute = $0 }
+            }
         }
+    }
+
+    private func startAdding() {
+        viewModel.prepareDraft()
+        isAdding = true
     }
 
     private func chip(_ title: String, isOn: Bool, action: @escaping () -> Void) -> some View {
