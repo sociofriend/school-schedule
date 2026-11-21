@@ -6,6 +6,8 @@ import UIKit
 @Observable
 final class ProfileViewModel {
     var name: String { didSet { store.name = name.trimmingCharacters(in: .whitespacesAndNewlines) } }
+    /// Changing it only changes suggested subjects; the timetable is never touched.
+    var grade: Int? { didSet { store.grade = grade } }
     var theme: AppTheme { didSet { store.theme = theme } }
     var appearance: Appearance { didSet { store.appearance = appearance } }
     private(set) var photo: UIImage?
@@ -17,6 +19,7 @@ final class ProfileViewModel {
     init(store: ProfileStore = ProfileStore()) {
         self.store = store
         name = store.name
+        grade = store.grade
         theme = store.theme
         appearance = store.appearance
         isComplete = store.isComplete

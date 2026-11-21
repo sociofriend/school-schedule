@@ -50,7 +50,7 @@ struct SettingsView: View {
                 Section("Դասացուցակ") {
                     Button("Սկանավորել նորից", systemImage: "camera.viewfinder") { isScanning = true }
                     NavigationLink {
-                        TimetableEditorView(store: store).armenianBackButton()
+                        TimetableEditorView(store: store, grade: profile.grade).armenianBackButton()
                     } label: {
                         Label("Խմբագրել ձեռքով", systemImage: "square.and.pencil")
                     }
