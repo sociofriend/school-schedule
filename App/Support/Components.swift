@@ -23,7 +23,7 @@ struct LessonRow: View {
                 HStack(spacing: 8) {
                     Text("\(lesson.period)-րդ դաս")
                     if let start = lesson.start {
-                        Label(start.armenianTime, systemImage: "clock")
+                        Label(start.armenianTime(), systemImage: "clock")
                     }
                     if !lesson.room.isEmpty { Label(lesson.room, systemImage: "door.left.hand.open") }
                 }
