@@ -7,6 +7,7 @@ struct NowCard: View {
     let lessons: [LessonSlot]
     let lessonsDone: Int
     let isToday: Bool
+    @Environment(\.theme) private var theme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -104,7 +105,7 @@ struct NowCard: View {
         case let .inLesson(lesson, _): SubjectStyle(subject: lesson.subject).color
         case let .onBreak(next): SubjectStyle(subject: next.subject).color
         case let .beforeSchool(first): SubjectStyle(subject: first.subject).color
-        case .finished, nil: lessons.first.map { SubjectStyle(subject: $0.subject).color } ?? .accentColor
+        case .finished, nil: lessons.first.map { SubjectStyle(subject: $0.subject).color } ?? theme.accent
         }
     }
 }

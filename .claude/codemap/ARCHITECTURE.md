@@ -5,8 +5,9 @@
 ```
 DasacucakApp ─ AppEnvironment ─ RootView (tabs): Today · Calendar · Tasks · Notes · Settings
   App/Features/<Feature>/: <Feature>View + @Observable <Feature>ViewModel; Scan (VisionKit → Vision OCR → TimetableParser)
+  Profile: first-launch OnboardingView (name, photo, theme) · AppTheme (Ծիրան/Կավիճ/Աստղիկ: colors, type, alt icon via \.theme)
   Today: NowCard (Timetable.phase: lesson/break countdowns) · Backpack (BackpackStore in App Group, per-day ticks)
-App/Data/: AppEnvironment, DataStore (the only SwiftData writer), BackpackStore, NotificationScheduler (14 evenings of "tomorrow")
+App/Data/: AppEnvironment, DataStore (the only SwiftData writer), BackpackStore, ProfileStore (name/theme + photo file), NotificationScheduler (14 evenings of "tomorrow")
 Shared/: models, SwiftData container in the App Group, ScheduleReader (read model for app, widget, notifications),
          Schedule/Timetable rules (pure), DaySnapshot values
 Widget/: ScheduleProvider (timeline at lesson boundaries) · ScheduleWidget

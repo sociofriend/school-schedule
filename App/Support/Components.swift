@@ -50,6 +50,7 @@ struct TaskRow: View {
     let isDone: Bool
     var dueText: String?
     let toggle: () -> Void
+    @Environment(\.theme) private var theme
 
     var body: some View {
         Button(action: toggle) {
@@ -89,7 +90,7 @@ struct TaskRow: View {
         .accessibilityHint("Կրկնակի հպիր՝ նշելու համար")
     }
 
-    private var tint: Color { subject.isEmpty ? .accentColor : SubjectStyle(subject: subject).color }
+    private var tint: Color { subject.isEmpty ? theme.accent : SubjectStyle(subject: subject).color }
 }
 
 /// Thumbnail decoded off the main thread.

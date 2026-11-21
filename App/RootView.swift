@@ -7,6 +7,7 @@ struct RootView: View {
     @State private var tasks: TasksViewModel
     @State private var notes: NotesViewModel
     @State private var settings: SettingsViewModel
+    @State private var profile: ProfileViewModel
     @Environment(\.scenePhase) private var scenePhase
 
     init(environment: AppEnvironment) {
@@ -16,12 +17,13 @@ struct RootView: View {
         _calendar = State(initialValue: CalendarViewModel(store: store))
         _tasks = State(initialValue: TasksViewModel(store: store))
         _notes = State(initialValue: NotesViewModel(store: store))
+        _profile = State(initialValue: ProfileViewModel())
         _settings = State(initialValue: SettingsViewModel(store: store, notifications: environment.notifications))
     }
 
     var body: some View {
         TabView {
-            TodayView(viewModel: today, tasks: tasks, store: environment.store)
+            TodayView(viewModel: today, tasks: tasks, profile: profile, store: environment.store)
                 .tabItem { Label("Այսօր", systemImage: "sun.max.fill") }
             CalendarScreen(viewModel: calendar, store: environment.store)
                 .tabItem { Label("Օրացույց", systemImage: "calendar") }
@@ -30,10 +32,11 @@ struct RootView: View {
                 .badge(tasks.dueSoonCount)
             NotesView(viewModel: notes, store: environment.store)
                 .tabItem { Label("Գրառումներ", systemImage: "note.text") }
-            SettingsView(viewModel: settings, store: environment.store)
+            SettingsView(viewModel: settings, profile: profile, store: environment.store)
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
-        .fontDesign(.rounded)
+        .themed(profile.theme)
+        .fullScreenCover(isPresented: .constant(!profile.isComplete)) { OnboardingView(profile: profile) }
         .onChange(of: scenePhase, initial: true) { _, phase in
             guard phase == .active else { return }
             today.reload()

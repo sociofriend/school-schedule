@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Bindable var viewModel: SettingsViewModel
+    @Bindable var profile: ProfileViewModel
     let store: DataStore
     @State private var isScanning = false
     @Environment(\.openURL) private var openURL
@@ -9,6 +10,23 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    NavigationLink {
+                        ProfileEditView(profile: profile)
+                    } label: {
+                        HStack(spacing: 14) {
+                            AvatarView(photo: profile.photo, name: profile.name, size: 52)
+                            Text(profile.name.isEmpty ? "Իմ պրոֆիլը" : profile.name).font(.title3.bold())
+                        }
+                    }
+                }
+
+                Section("Ոճ") {
+                    ThemePicker(selection: $profile.theme)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                        .onChange(of: profile.theme) { profile.applyIcon() }
+                }
+
                 Section {
                     Toggle("Երեկոյան հիշեցում", isOn: $viewModel.reminderEnabled)
                     if viewModel.reminderEnabled {
