@@ -44,7 +44,7 @@ struct TodayView: View {
 
     private var header: some View {
         HStack(alignment: .center, spacing: 16) {
-            AvatarView(photo: profile.photo, name: profile.name, size: 60)
+            AvatarView(profile: profile, size: 60)
             VStack(alignment: .leading, spacing: 6) {
                 Text(greetingText)
                     .font(.largeTitle.bold())

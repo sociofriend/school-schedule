@@ -1,9 +1,10 @@
 import PhotosUI
 import SwiftUI
 
-/// Round kid photo, or a placeholder (first letter on the theme color, or neutral gray).
+/// Round kid avatar: photo, character emoji, or a placeholder (initial on the theme color, or neutral gray).
 struct AvatarView: View {
     let photo: UIImage?
+    var emoji: String?
     let name: String
     var size: CGFloat = 56
     var neutral = false
@@ -13,6 +14,11 @@ struct AvatarView: View {
         Group {
             if let photo {
                 Image(uiImage: photo).resizable().scaledToFill()
+            } else if let emoji {
+                Text(emoji)
+                    .font(.system(size: size * 0.56))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(rgb: 0xFFE9D6))
             } else {
                 ZStack {
                     Rectangle().fill(neutral ? AnyShapeStyle(Color(.systemGray5)) : AnyShapeStyle(theme.accent.gradient))
@@ -31,31 +37,59 @@ struct AvatarView: View {
     }
 }
 
-/// Photo button: tap to pick from the library; long-press to remove.
-struct AvatarPicker: View {
+extension AvatarView {
+    init(profile: ProfileViewModel, size: CGFloat = 56, neutral: Bool = false) {
+        self.init(photo: profile.photo, emoji: profile.emoji, name: profile.name, size: size, neutral: neutral)
+    }
+}
+
+/// Big avatar in a rainbow ring, then camera / library tiles and a grid of characters.
+struct AvatarChooser: View {
     let profile: ProfileViewModel
-    var size: CGFloat = 132
-    var neutral = false
+    var avatarSize: CGFloat = 164
     @State private var item: PhotosPickerItem?
-    @Environment(\.theme) private var theme
+    @State private var isCameraPresented = false
+
+    private static let ring = AngularGradient(colors: [.blue, .purple, .pink, .orange, .yellow, .cyan, .blue], center: .center)
 
     var body: some View {
-        PhotosPicker(selection: $item, matching: .images) {
-            AvatarView(photo: profile.photo, name: profile.name, size: size, neutral: neutral)
-                .overlay(alignment: .bottomTrailing) {
-                    Image(systemName: "camera.fill")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(neutral ? Color(.systemBackground) : theme.onAccent)
-                        .frame(width: size * 0.3, height: size * 0.3)
-                        .background(neutral ? Color.primary : theme.accent, in: .circle)
-                        .overlay(Circle().stroke(Color(.systemGroupedBackground), lineWidth: 4))
+        VStack(spacing: 22) {
+            AvatarView(profile: profile, size: avatarSize, neutral: true)
+                .padding(5)
+                .background(Color(.systemBackground), in: .circle)
+                .padding(6)
+                .background(Self.ring, in: .circle)
+                .contentTransition(.opacity)
+                .animation(.spring(response: 0.35, dampingFraction: 0.6), value: profile.emoji)
+                .sensoryFeedback(.impact(weight: .light), trigger: profile.emoji)
+
+            HStack(spacing: 12) {
+                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                    tile("Լուսանկարել", symbol: "camera.fill", tint: .blue) { isCameraPresented = true }
                 }
-        }
-        .buttonStyle(BouncyButtonStyle())
-        .accessibilityLabel("Ընտրել նկար")
-        .contextMenu {
-            if profile.photo != nil {
-                Button("Հեռացնել նկարը", systemImage: "trash", role: .destructive, action: profile.removePhoto)
+                PhotosPicker(selection: $item, matching: .images) {
+                    tileLabel("Պատկերասրահ", symbol: "photo.fill", tint: .green)
+                }
+                .buttonStyle(BouncyButtonStyle())
+            }
+
+            VStack(spacing: 12) {
+                Text("կամ ընտրիր կերպար").font(.subheadline).foregroundStyle(.secondary)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                    ForEach(ProfileViewModel.characters, id: \.self) { character in
+                        let isOn = profile.emoji == character
+                        Button { profile.setEmoji(character) } label: {
+                            Text(character)
+                                .font(.system(size: 34))
+                                .frame(width: 64, height: 64)
+                                .background(Color(.secondarySystemGroupedBackground), in: .circle)
+                                .overlay(Circle().strokeBorder(isOn ? Color.primary : .clear, lineWidth: 3))
+                                .scaleEffect(isOn ? 1.08 : 1)
+                        }
+                        .buttonStyle(BouncyButtonStyle())
+                        .accessibilityAddTraits(isOn ? .isSelected : [])
+                    }
+                }
             }
         }
         .onChange(of: item) {
@@ -65,21 +99,121 @@ struct AvatarPicker: View {
                 self.item = nil
             }
         }
+        .fullScreenCover(isPresented: $isCameraPresented) {
+            CameraPicker { profile.setPhoto($0) }.ignoresSafeArea()
+        }
+    }
+
+    private func tile(_ title: String, symbol: String, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) { tileLabel(title, symbol: symbol, tint: tint) }
+            .buttonStyle(BouncyButtonStyle())
+    }
+
+    private func tileLabel(_ title: String, symbol: String, tint: Color) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: symbol).font(.title2.bold()).foregroundStyle(tint)
+            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 84)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 22, style: .continuous))
     }
 }
 
-/// A miniature Today screen drawn in a theme, so kids pick a style by seeing it.
+/// System camera (front-facing) for a selfie avatar.
+struct CameraPicker: UIViewControllerRepresentable {
+    let onImage: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        if UIImagePickerController.isCameraDeviceAvailable(.front) { picker.cameraDevice = .front }
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ controller: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        private let parent: CameraPicker
+        init(_ parent: CameraPicker) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let image = info[.originalImage] as? UIImage { parent.onImage(image) }
+            parent.dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { parent.dismiss() }
+    }
+}
+
+/// A miniature Today screen drawn in a theme: greeting, "now" card and lesson rows.
+struct ThemeMiniScreen<Avatar: View>: View {
+    let theme: AppTheme
+    var greeting = "Բարև"
+    var lessons: [String] = []
+    @ViewBuilder var avatar: Avatar
+
+    private var ink: Color { theme.colorScheme == .dark ? .white : Color(rgb: 0x2E2A4F) }
+    private static var dots: [Color] { [.blue, .indigo, .pink] }
+    private static var bars: [CGFloat] { [64, 48, 56] }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                avatar.frame(width: 18, height: 18)
+                Text(greeting).font(.system(size: 14, weight: .heavy, design: theme.fontDesign)).fontWidth(theme.fontWidth)
+                Spacer(minLength: 0)
+                Image(systemName: theme.symbol).font(.system(size: 12, weight: .bold)).foregroundStyle(theme.accent)
+            }
+            .foregroundStyle(ink)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Հիմա").font(.system(size: 9, weight: .semibold)).opacity(0.85)
+                Text("Մաթեմատիկա").font(.system(size: 14, weight: .heavy, design: theme.fontDesign)).fontWidth(theme.fontWidth)
+                Capsule().fill(theme.onAccent.opacity(0.3)).frame(height: 4)
+                    .overlay(alignment: .leading) { Capsule().fill(theme.onAccent).frame(width: 60, height: 4) }
+                    .padding(.top, 4)
+            }
+            .foregroundStyle(theme.onAccent)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(theme.accent.gradient, in: .rect(cornerRadius: 12, style: .continuous))
+            ForEach(0..<3, id: \.self) { i in
+                HStack(spacing: 6) {
+                    Circle().fill(Self.dots[i]).frame(width: 7, height: 7)
+                    if i < lessons.count {
+                        Text(lessons[i]).font(.system(size: 10, weight: .medium, design: theme.fontDesign)).foregroundStyle(ink)
+                    } else {
+                        Capsule().fill(ink.opacity(0.22)).frame(width: Self.bars[i], height: 5)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 22)
+                .background(theme.surface, in: .rect(cornerRadius: 8, style: .continuous))
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .padding(12)
+        .frame(width: 156, height: 196, alignment: .top)
+        .background(theme.background, in: .rect(cornerRadius: 20, style: .continuous))
+        .environment(\.colorScheme, theme.colorScheme)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Selectable theme card (Settings): mini screen plus name and tagline.
 struct ThemePreviewCard: View {
     let theme: AppTheme
     let isSelected: Bool
 
-    private var ink: Color { theme.colorScheme == .dark ? .white : Color(rgb: 0x2E2A4F) }
-    private static let dots: [Color] = [.blue, .indigo, .pink]
-    private static let bars: [CGFloat] = [64, 48, 56]
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            screen
+            ThemeMiniScreen(theme: theme) { Circle().fill(theme.accent.gradient) }
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(theme.name).font(.headline).fontDesign(theme.fontDesign).fontWidth(theme.fontWidth)
@@ -102,49 +236,9 @@ struct ThemePreviewCard: View {
         .scaleEffect(isSelected ? 1 : 0.96)
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isSelected)
     }
-
-    private var screen: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(spacing: 6) {
-                Circle().fill(theme.accent.gradient).frame(width: 18, height: 18)
-                Text("Բարև").font(.system(size: 14, weight: .heavy, design: theme.fontDesign)).fontWidth(theme.fontWidth)
-                Spacer()
-                Image(systemName: theme.symbol).font(.system(size: 12, weight: .bold)).foregroundStyle(theme.accent)
-            }
-            .foregroundStyle(ink)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Հիմա").font(.system(size: 9, weight: .semibold)).opacity(0.85)
-                Text("Մաթեմատիկա").font(.system(size: 14, weight: .heavy, design: theme.fontDesign)).fontWidth(theme.fontWidth)
-                Capsule().fill(theme.onAccent.opacity(0.3)).frame(height: 4)
-                    .overlay(alignment: .leading) { Capsule().fill(theme.onAccent).frame(width: 60, height: 4) }
-                    .padding(.top, 4)
-            }
-            .foregroundStyle(theme.onAccent)
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(theme.accent.gradient, in: .rect(cornerRadius: 12, style: .continuous))
-            ForEach(0..<3, id: \.self) { i in
-                HStack(spacing: 6) {
-                    Circle().fill(Self.dots[i]).frame(width: 7, height: 7)
-                    Capsule().fill(ink.opacity(0.22)).frame(width: Self.bars[i], height: 5)
-                    Spacer(minLength: 0)
-                }
-                .padding(.horizontal, 8)
-                .frame(height: 22)
-                .background(theme.surface, in: .rect(cornerRadius: 8, style: .continuous))
-            }
-        }
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .padding(12)
-        .frame(width: 156, height: 196, alignment: .top)
-        .background(theme.background, in: .rect(cornerRadius: 20, style: .continuous))
-        .environment(\.colorScheme, theme.colorScheme)
-        .accessibilityHidden(true)
-    }
 }
 
-/// Swipeable row of theme previews.
+/// Swipeable row of theme previews (Settings).
 struct ThemePicker: View {
     @Binding var selection: AppTheme
 
@@ -170,110 +264,6 @@ struct ThemePicker: View {
     }
 }
 
-/// First launch, kept neutral (no theme yet): 1) name and photo, 2) style.
-struct OnboardingView: View {
-    @Bindable var profile: ProfileViewModel
-    @State private var step = 0
-    @FocusState private var isNameFocused: Bool
-
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 6) {
-                ForEach(0..<2, id: \.self) { i in
-                    Capsule().fill(Color.primary.opacity(i <= step ? 1 : 0.12)).frame(height: 4)
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .accessibilityHidden(true)
-
-            Group {
-                if step == 0 { aboutYou } else { style }
-            }
-            .frame(maxHeight: .infinity, alignment: .top)
-            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                    removal: .move(edge: .leading).combined(with: .opacity)))
-
-            footer
-        }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
-        .tint(.primary)
-        .fontDesign(.rounded)
-        .interactiveDismissDisabled()
-    }
-
-    private var aboutYou: some View {
-        ScrollView {
-            VStack(spacing: 32) {
-                header("Բարև 👋", "Ինչպե՞ս քեզ կոչել")
-                AvatarPicker(profile: profile, size: 140, neutral: true)
-                TextField("Անունդ", text: $profile.name)
-                    .font(.title2.weight(.semibold))
-                    .multilineTextAlignment(.center)
-                    .textContentType(.givenName)
-                    .submitLabel(.next)
-                    .focused($isNameFocused)
-                    .onSubmit(next)
-                    .padding(.vertical, 16)
-                    .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 18, style: .continuous))
-                    .padding(.horizontal, 24)
-            }
-        }
-        .scrollDismissesKeyboard(.interactively)
-    }
-
-    private var style: some View {
-        VStack(spacing: 28) {
-            header("Ընտրիր քո ոճը", "Հետո կարող ես փոխել Կարգավորումներում")
-            ThemePicker(selection: $profile.theme)
-        }
-    }
-
-    private func header(_ title: String, _ subtitle: String) -> some View {
-        VStack(spacing: 8) {
-            Text(title).font(.largeTitle.bold())
-            Text(subtitle).font(.title3).foregroundStyle(.secondary)
-        }
-        .multilineTextAlignment(.center)
-        .padding(.horizontal, 24)
-        .padding(.top, 40)
-    }
-
-    private var footer: some View {
-        HStack(spacing: 12) {
-            if step > 0 {
-                Button("Հետ", systemImage: "chevron.left") { withAnimation(.spring) { step = 0 } }
-                    .labelStyle(.iconOnly)
-                    .font(.headline)
-                    .frame(width: 54, height: 54)
-                    .background(Color(.secondarySystemGroupedBackground), in: .circle)
-                    .transition(.scale.combined(with: .opacity))
-            }
-            Button(action: next) {
-                Text(step == 0 ? "Շարունակել" : "Սկսել")
-                    .font(.headline)
-                    .foregroundStyle(Color(.systemBackground))
-                    .frame(maxWidth: .infinity, minHeight: 54)
-                    .background(Color.primary, in: .capsule)
-            }
-            .opacity(profile.canFinish ? 1 : 0.3)
-            .disabled(!profile.canFinish)
-        }
-        .buttonStyle(BouncyButtonStyle())
-        .padding(24)
-    }
-
-    private func next() {
-        guard profile.canFinish else { return }
-        if step == 0 {
-            isNameFocused = false
-            withAnimation(.spring) { step = 1 }
-        } else {
-            profile.finishOnboarding()
-        }
-    }
-}
-
 /// Settings screen for the profile.
 struct ProfileEditView: View {
     @Bindable var profile: ProfileViewModel
@@ -281,9 +271,10 @@ struct ProfileEditView: View {
     var body: some View {
         Form {
             Section {
-                AvatarPicker(profile: profile, size: 110).frame(maxWidth: .infinity)
+                AvatarChooser(profile: profile, avatarSize: 120)
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
             Section("Անուն") {
                 TextField("Անունդ", text: $profile.name).textContentType(.givenName)
             }
