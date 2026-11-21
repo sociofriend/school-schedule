@@ -3,6 +3,8 @@ import SwiftUI
 /// The kid's chosen look, one per app logo: colors, type and app icon, each in light and dark.
 enum AppTheme: String, CaseIterable, Identifiable {
     case buddy, backpack, letter, scan, clock
+    // Calmer, minimal looks for older students.
+    case graphite, midnight, neon, sand, emerald
 
     var id: String { rawValue }
 
@@ -23,6 +25,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: "Դ"
         case .scan: "Սկան"
         case .clock: "Զարթուցիչ"
+        case .graphite: "Գրաֆիտ"
+        case .midnight: "Կեսգիշեր"
+        case .neon: "Նեոն"
+        case .sand: "Ավազ"
+        case .emerald: "Զմրուխտ"
         }
     }
 
@@ -33,6 +40,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: "Մաքուր և վստահ"
         case .scan: "Նկարիր և վերջ"
         case .clock: "Երեկոյան հիշեցում"
+        case .graphite: "Խիստ և պարզ"
+        case .midnight: "Օրը մեկ հայացքով"
+        case .neon: "Վառ, բայց հանգիստ"
+        case .sand: "Տաք և մինիմալ"
+        case .emerald: "Կենտրոնացած աշխատանք"
         }
     }
 
@@ -43,6 +55,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: "checkmark.seal.fill"
         case .scan: "camera.viewfinder"
         case .clock: "alarm.fill"
+        case .graphite: "square.fill"
+        case .midnight: "chart.bar.doc.horizontal"
+        case .neon: "checkmark.circle"
+        case .sand: "calendar"
+        case .emerald: "bookmark.fill"
         }
     }
 
@@ -54,6 +71,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: "LogoLetter"
         case .scan: "LogoScan"
         case .clock: "LogoClock"
+        case .graphite: "LogoGraphite"
+        case .midnight: "LogoMidnight"
+        case .neon: "LogoNeon"
+        case .sand: "LogoSand"
+        case .emerald: "LogoEmerald"
         }
     }
 
@@ -66,6 +88,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: .dynamic(light: 0x4B3BE6, dark: 0x8C9BFF)
         case .scan: .dynamic(light: 0x2F55D4, dark: 0x5CE6D8)
         case .clock: .dynamic(light: 0x6A3FC4, dark: 0xFF9A6B)
+        case .graphite: .dynamic(light: 0x1C1C1E, dark: 0xC6F432)
+        case .midnight: .dynamic(light: 0x2563EB, dark: 0x5B8CFF)
+        case .neon: .dynamic(light: 0x9333EA, dark: 0xE879F9)
+        case .sand: .dynamic(light: 0xB4472F, dark: 0xE07A5F)
+        case .emerald: .dynamic(light: 0x047857, dark: 0x34D399)
         }
     }
 
@@ -77,6 +104,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: .dynamic(light: 0xF1F2FF, dark: 0x110D33)
         case .scan: .dynamic(light: 0xEEF3FC, dark: 0x0A1030)
         case .clock: .dynamic(light: 0xF6F0FF, dark: 0x150D2E)
+        case .graphite: .dynamic(light: 0xF5F5F7, dark: 0x000000)
+        case .midnight: .dynamic(light: 0xF2F5FB, dark: 0x0A1428)
+        case .neon: .dynamic(light: 0xF7F5FA, dark: 0x0B0B0F)
+        case .sand: .dynamic(light: 0xF6F1E8, dark: 0x1E1A15)
+        case .emerald: .dynamic(light: 0xEFF5F2, dark: 0x0B1A16)
         }
     }
 
@@ -88,6 +120,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: .dynamic(light: 0xFFFFFF, dark: 0x1D1850)
         case .scan: .dynamic(light: 0xFFFFFF, dark: 0x16204A)
         case .clock: .dynamic(light: 0xFFFFFF, dark: 0x251A4A)
+        case .graphite: .dynamic(light: 0xFFFFFF, dark: 0x1C1C1E)
+        case .midnight: .dynamic(light: 0xFFFFFF, dark: 0x13213F)
+        case .neon: .dynamic(light: 0xFFFFFF, dark: 0x18181F)
+        case .sand: .dynamic(light: 0xFFFDF8, dark: 0x2A251E)
+        case .emerald: .dynamic(light: 0xFFFFFF, dark: 0x13261F)
         }
     }
 
@@ -99,17 +136,33 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: .dynamic(light: 0xFFFFFF, dark: 0x110D33)
         case .scan: .dynamic(light: 0xFFFFFF, dark: 0x0A1030)
         case .clock: .dynamic(light: 0xFFFFFF, dark: 0x150D2E)
+        case .graphite: .dynamic(light: 0xFFFFFF, dark: 0x000000)
+        case .midnight: .dynamic(light: 0xFFFFFF, dark: 0x0A1428)
+        case .neon: .dynamic(light: 0xFFFFFF, dark: 0x0B0B0F)
+        case .sand: .dynamic(light: 0xFFFFFF, dark: 0x1E1A15)
+        case .emerald: .dynamic(light: 0xFFFFFF, dark: 0x0B1A16)
         }
     }
 
     var fontDesign: Font.Design {
         switch self {
         case .buddy, .backpack, .clock: .rounded
-        case .letter, .scan: .default
+        case .letter, .scan, .graphite, .midnight, .neon, .sand, .emerald: .default
         }
     }
 
     var fontWidth: Font.Width { self == .scan ? .condensed : .standard }
+
+    /// Kid themes are playful (confetti, bouncy buttons); teen themes stay calm.
+    var isPlayful: Bool {
+        switch self {
+        case .buddy, .backpack, .letter, .scan, .clock: true
+        case .graphite, .midnight, .neon, .sand, .emerald: false
+        }
+    }
+
+    static var kids: [AppTheme] { allCases.filter(\.isPlayful) }
+    static var teens: [AppTheme] { allCases.filter { !$0.isPlayful } }
 
     /// Alternate icon set in the asset catalog (light, dark and tinted); `nil` is the primary `AppIcon`.
     var iconName: String? {
@@ -119,6 +172,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .letter: "AppIconLetter"
         case .scan: "AppIconScan"
         case .clock: "AppIconClock"
+        case .graphite: "AppIconGraphite"
+        case .midnight: "AppIconMidnight"
+        case .neon: "AppIconNeon"
+        case .sand: "AppIconSand"
+        case .emerald: "AppIconEmerald"
         }
     }
 }

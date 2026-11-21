@@ -224,6 +224,7 @@ struct ThemePreviewCard: View {
                     .font(.title3)
                     .foregroundStyle(isSelected ? Color.primary : Color(.tertiaryLabel))
                     .contentTransition(.symbolEffect(.replace))
+                    .themedDoneEffect(value: isSelected)
             }
             .padding(.horizontal, 4)
         }
@@ -257,24 +258,35 @@ struct ThemePicker: View {
     @Binding var selection: AppTheme
 
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 12) {
-                ForEach(AppTheme.allCases) { theme in
-                    Button { selection = theme } label: {
-                        ThemePreviewCard(theme: theme, isSelected: selection == theme)
-                    }
-                    .buttonStyle(BouncyButtonStyle())
-                    .accessibilityLabel("\(theme.name), \(theme.tagline)")
-                    .accessibilityAddTraits(selection == theme ? .isSelected : [])
-                }
-            }
-            .scrollTargetLayout()
-            .padding(.horizontal, 20)
-            .padding(.vertical, 6)
+        VStack(alignment: .leading, spacing: 4) {
+            row("Փոքրերի համար", AppTheme.kids)
+            row("Ավագների համար", AppTheme.teens)
         }
-        .scrollTargetBehavior(.viewAligned)
-        .scrollIndicators(.hidden)
         .sensoryFeedback(.selection, trigger: selection)
+    }
+
+    private func row(_ title: LocalizedStringKey, _ themes: [AppTheme]) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                .padding(.horizontal, 24).padding(.top, 8)
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(themes) { theme in
+                        Button { selection = theme } label: {
+                            ThemePreviewCard(theme: theme, isSelected: selection == theme)
+                        }
+                        .buttonStyle(BouncyButtonStyle())
+                        .accessibilityLabel("\(theme.name), \(theme.tagline)")
+                        .accessibilityAddTraits(selection == theme ? .isSelected : [])
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.horizontal, 20)
+                .padding(.vertical, 6)
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .scrollIndicators(.hidden)
+        }
     }
 }
 

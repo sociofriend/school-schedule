@@ -59,6 +59,7 @@ struct NowCard: View {
             Image(systemName: SubjectStyle(subject: lesson.subject).symbol)
                 .font(.system(size: 30, weight: .bold))
                 .frame(width: 64, height: 64)
+                .themedIdle()
                 .background(ink.opacity(0.22), in: .rect(cornerRadius: 20, style: .continuous))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 6) {

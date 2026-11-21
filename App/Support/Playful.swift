@@ -62,18 +62,20 @@ extension View {
 /// Squishy press feedback for big kid-friendly buttons.
 struct BouncyButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.theme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.94 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? (theme.isPlayful ? 0.94 : 0.98) : 1)
             .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
-/// One-shot confetti burst. Skipped entirely when Reduce Motion is on.
+/// One-shot confetti burst. Skipped when Reduce Motion is on or the theme is a calm (teen) one.
 struct ConfettiView: View {
     let trigger: Int
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.theme) private var theme
     @State private var start: Date?
 
     private static let colors: [Color] = [.pink, .orange, .yellow, .green, .blue, .purple]
@@ -104,7 +106,7 @@ struct ConfettiView: View {
         .allowsHitTesting(false)
         .accessibilityHidden(true)
         .onChange(of: trigger) {
-            guard !reduceMotion else { return }
+            guard !reduceMotion, theme.isPlayful else { return }
             start = .now
             Task {
                 try? await Task.sleep(for: .seconds(Self.duration))

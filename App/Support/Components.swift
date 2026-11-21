@@ -68,6 +68,7 @@ struct TaskRow: View {
                 }
                 .frame(width: 30, height: 30)
                 .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isDone)
+                .themedPop(trigger: isDone)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)

@@ -5,7 +5,8 @@
 ```
 DasacucakApp ─ AppEnvironment ─ RootView (tabs): Today · Calendar · Tasks · Notes · Settings
   App/Features/<Feature>/: <Feature>View + @Observable <Feature>ViewModel; Scan (VisionKit → Vision OCR → TimetableParser)
-  Profile: first-launch OnboardingView (hello → name → photo/character → live theme) · AppTheme (Ծիրան/Կավիճ/Աստղիկ: colors, type, alt icon via \.theme)
+  Profile: first-launch OnboardingView (hello → name → photo/character → live theme) · AppTheme (5 kid + 5 teen themes: light/dark colors, type, alt icon via \.theme)
+  Motion: ThemeMotion, per-theme micro-animations (.themedPop/.themedDoneEffect/.themedIdle/.themedFloat/.themedRise)
   Share: SharePackage (.dasacucak JSON + readable text) via ShareLink in Tasks/Settings · onOpenURL → ShareInboxView (preview, then place)
   Today: NowCard (Timetable.phase: lesson/break countdowns) · Backpack (BackpackStore in App Group, per-day ticks)
 App/Data/: AppEnvironment, DataStore (the only SwiftData writer), BackpackStore, ProfileStore (name/theme + photo file), NotificationScheduler (14 evenings of "tomorrow")

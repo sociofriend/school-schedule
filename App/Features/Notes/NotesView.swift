@@ -33,8 +33,15 @@ struct NotesView: View {
             .overlay {
                 if viewModel.groups.isEmpty {
                     if viewModel.searchText.isEmpty {
-                        ContentUnavailableView("Գրառումներ չկան", systemImage: "note.text",
-                                               description: Text("Բացիր դասը և գրիր կամ լուսանկարիր։"))
+                        ContentUnavailableView {
+                            Label {
+                                Text("Գրառումներ չկան")
+                            } icon: {
+                                Image(systemName: "note.text").themedFloat()
+                            }
+                        } description: {
+                            Text("Բացիր դասը և գրիր կամ լուսանկարիր։")
+                        }
                     } else {
                         ContentUnavailableView.search(text: viewModel.searchText)
                     }

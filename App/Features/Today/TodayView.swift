@@ -14,15 +14,16 @@ struct TodayView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    header
+                    header.themedRise()
                     if viewModel.hasTimetable {
                         // Evenings (showing tomorrow) lead with packing; school hours lead with "now".
-                        if !viewModel.isToday { backpackCard }
+                        if !viewModel.isToday { backpackCard.themedRise(order: 1) }
                         NowCard(phase: viewModel.phase, lessons: viewModel.snapshot.lessons,
                                 lessonsDone: viewModel.lessonsDone, isToday: viewModel.isToday)
-                        if viewModel.isToday { backpackCard }
-                        lessonsSection
-                        tasksSection
+                            .themedRise(order: 2)
+                        if viewModel.isToday { backpackCard.themedRise(order: 3) }
+                        lessonsSection.themedRise(order: 4)
+                        tasksSection.themedRise(order: 5)
                     } else {
                         emptyTimetable
                     }
@@ -61,6 +62,7 @@ struct TodayView: View {
                         .font(.headline.monospacedDigit())
                 }
                 .frame(width: 70, height: 70)
+                .themedPop(trigger: viewModel.doneCount)
             }
         }
         .padding(.top, 12)
@@ -138,6 +140,7 @@ struct TodayView: View {
     private var emptyTimetable: some View {
         VStack(spacing: 16) {
             Image(systemName: "camera.viewfinder")
+                .themedFloat()
                 .font(.system(size: 56, weight: .bold))
                 .foregroundStyle(theme.onAccent)
                 .frame(width: 110, height: 110)
