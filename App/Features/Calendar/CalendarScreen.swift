@@ -8,8 +8,10 @@ struct CalendarScreen: View {
         NavigationStack {
             List {
                 Section {
-                    MonthCalendarView(selection: $viewModel.selectedDate, markedDays: viewModel.markedDays)
+                    MonthCalendarView(selection: $viewModel.selectedDate, marks: viewModel.marks,
+                                      schoolWeekdays: viewModel.schoolWeekdays)
                 }
+                .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                 Section(viewModel.selectedDate.armenianLongDay) {
                     if viewModel.snapshot.lessons.isEmpty {
                         Text("Դասեր չկան").foregroundStyle(.secondary)
