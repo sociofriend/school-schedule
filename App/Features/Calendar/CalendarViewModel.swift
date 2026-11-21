@@ -9,7 +9,9 @@ final class CalendarViewModel {
         didSet { reloadDay() }
     }
     private(set) var snapshot: DaySnapshot = .empty(.now)
-    private(set) var markedDays: Set<DateComponents> = []
+    private(set) var marks: [Date: DayMarks] = [:]
+    /// Weekdays (1 = Sunday) that have lessons; others are drawn dimmed.
+    private(set) var schoolWeekdays: Set<Int> = []
     private(set) var subjectsWithNotes: Set<String> = []
 
     private let store: DataStore
@@ -24,7 +26,8 @@ final class CalendarViewModel {
     }
 
     func reload() {
-        markedDays = store.markedDays()
+        marks = store.dayMarks()
+        schoolWeekdays = Set(store.timetable().entries.map(\.weekday))
         reloadDay()
     }
 

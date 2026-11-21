@@ -165,9 +165,20 @@ final class DataStore {
 
     // MARK: Calendar
 
-    /// Days that have notes or open tasks, as year/month/day components.
-    func markedDays() -> Set<DateComponents> {
-        let days = allNotes().map(\.day) + tasks().filter { !$0.isDone }.map(\.dueDate)
-        return Set(days.map { calendar.dateComponents([.year, .month, .day], from: $0) })
+    /// Markers per day (start of day): homework due, notes, photos, tests.
+    func dayMarks() -> [Date: DayMarks] {
+        var marks: [Date: DayMarks] = [:]
+        for task in tasks() {
+            let day = calendar.startOfDay(for: task.dueDate)
+            if task.isDone { marks[day, default: DayMarks()].doneHomework += 1 }
+            else { marks[day, default: DayMarks()].pendingHomework += 1 }
+            if DayMarks.isTest(task.title) { marks[day, default: DayMarks()].hasTest = true }
+        }
+        for note in allNotes() {
+            let day = calendar.startOfDay(for: note.day)
+            if !note.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { marks[day, default: DayMarks()].hasNote = true }
+            if !note.photos.isEmpty { marks[day, default: DayMarks()].hasPhoto = true }
+        }
+        return marks
     }
 }
