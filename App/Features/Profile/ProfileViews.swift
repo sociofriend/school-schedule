@@ -157,7 +157,7 @@ struct ThemeMiniScreen<Avatar: View>: View {
     var lessons: [String] = []
     @ViewBuilder var avatar: Avatar
 
-    private var ink: Color { theme.colorScheme == .dark ? .white : Color(rgb: 0x2E2A4F) }
+    private var ink: Color { .primary }
     private static var dots: [Color] { [.blue, .indigo, .pink] }
     private static var bars: [CGFloat] { [64, 48, 56] }
 
@@ -201,7 +201,6 @@ struct ThemeMiniScreen<Avatar: View>: View {
         .padding(12)
         .frame(width: 156, height: 196, alignment: .top)
         .background(theme.background, in: .rect(cornerRadius: 20, style: .continuous))
-        .environment(\.colorScheme, theme.colorScheme)
         .accessibilityHidden(true)
     }
 }

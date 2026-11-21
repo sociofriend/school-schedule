@@ -14,7 +14,7 @@ struct NowCard: View {
             content
             if !lessons.isEmpty { beads }
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(ink)
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.gradient, in: .rect(cornerRadius: 26, style: .continuous))
@@ -35,7 +35,7 @@ struct NowCard: View {
                             Text(timerInterval: Date.now...max(end, .now), countsDown: true).monospacedDigit()
                         }
                     }
-                    .tint(.white)
+                    .tint(ink)
                 }
                 if let next { Text("Հետո՝ \(next.subject)").font(.subheadline.weight(.semibold)).opacity(0.9) }
             }
@@ -59,13 +59,13 @@ struct NowCard: View {
             Image(systemName: SubjectStyle(subject: lesson.subject).symbol)
                 .font(.system(size: 30, weight: .bold))
                 .frame(width: 64, height: 64)
-                .background(.white.opacity(0.22), in: .rect(cornerRadius: 20, style: .continuous))
+                .background(ink.opacity(0.22), in: .rect(cornerRadius: 20, style: .continuous))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 6) {
                 Text(badge)
                     .font(.caption.weight(.heavy))
                     .padding(.horizontal, 10).padding(.vertical, 4)
-                    .background(.white.opacity(0.25), in: .capsule)
+                    .background(ink.opacity(0.25), in: .capsule)
                 Text(lesson.subject).font(.title2.bold()).lineLimit(2).minimumScaleFactor(0.8)
                 HStack(spacing: 10) {
                     if let start = lesson.start { Label(start.armenianTime, systemImage: "clock") }
@@ -92,12 +92,20 @@ struct NowCard: View {
         HStack(spacing: 6) {
             ForEach(Array(lessons.enumerated()), id: \.element.id) { index, lesson in
                 Capsule()
-                    .fill(.white.opacity(index < lessonsDone ? 1 : 0.3))
+                    .fill(ink.opacity(index < lessonsDone ? 1 : 0.3))
                     .frame(height: 8)
             }
         }
         .animation(.spring, value: lessonsDone)
         .accessibilityLabel("Անցած դասեր՝ \(lessonsDone)՝ \(lessons.count)-ից")
+    }
+
+    /// Text on the card: white on subject colors, the theme's own contrast color on its accent.
+    private var ink: Color {
+        switch phase {
+        case .finished, nil: lessons.isEmpty ? theme.onAccent : .white
+        default: .white
+        }
     }
 
     private var tint: Color {

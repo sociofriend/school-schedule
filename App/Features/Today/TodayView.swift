@@ -154,6 +154,7 @@ struct TodayView: View {
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
+            .foregroundStyle(theme.onAccent)
         }
         .frame(maxWidth: .infinity)
         .card(tint: theme.accent)

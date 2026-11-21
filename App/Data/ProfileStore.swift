@@ -9,6 +9,7 @@ struct ProfileStore {
     private static let themeKey = "profile.theme"
     private static let completeKey = "profile.complete"
     private static let emojiKey = "profile.emoji"
+    private static let appearanceKey = "profile.appearance"
 
     var name: String {
         get { defaults.string(forKey: Self.nameKey) ?? "" }
@@ -18,6 +19,11 @@ struct ProfileStore {
     var theme: AppTheme {
         get { defaults.string(forKey: Self.themeKey).flatMap(AppTheme.init(rawValue:)) ?? .apricot }
         nonmutating set { defaults.set(newValue.rawValue, forKey: Self.themeKey) }
+    }
+
+    var appearance: Appearance {
+        get { defaults.string(forKey: Self.appearanceKey).flatMap(Appearance.init(rawValue:)) ?? .system }
+        nonmutating set { defaults.set(newValue.rawValue, forKey: Self.appearanceKey) }
     }
 
     /// Character avatar (an animal emoji) used instead of a photo.

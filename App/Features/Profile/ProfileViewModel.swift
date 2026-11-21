@@ -7,6 +7,7 @@ import UIKit
 final class ProfileViewModel {
     var name: String { didSet { store.name = name.trimmingCharacters(in: .whitespacesAndNewlines) } }
     var theme: AppTheme { didSet { store.theme = theme } }
+    var appearance: Appearance { didSet { store.appearance = appearance } }
     private(set) var photo: UIImage?
     private(set) var emoji: String?
     private(set) var isComplete: Bool
@@ -17,6 +18,7 @@ final class ProfileViewModel {
         self.store = store
         name = store.name
         theme = store.theme
+        appearance = store.appearance
         isComplete = store.isComplete
         photo = store.photoData.flatMap { ImageTools.thumbnail(from: $0, maxPixelSize: 600) }
         emoji = store.emoji

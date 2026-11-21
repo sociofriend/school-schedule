@@ -37,7 +37,7 @@ struct RootView: View {
             SettingsView(viewModel: settings, profile: profile, store: environment.store)
                 .tabItem { Label("Կարգավորումներ", systemImage: "gearshape") }
         }
-        .themed(profile.isComplete ? profile.theme : nil)
+        .themed(profile.isComplete ? profile.theme : nil, appearance: profile.appearance)
         .fullScreenCover(isPresented: .constant(!profile.isComplete)) { OnboardingView(profile: profile) }
         // A share opened before onboarding waits until the profile is done.
         .sheet(item: Binding(get: { profile.isComplete ? inbox.package : nil }, set: { if $0 == nil { inbox.decline() } })) {
