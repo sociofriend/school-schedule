@@ -10,7 +10,7 @@ struct ShareInboxView: View {
             Form {
                 Section {
                     VStack(spacing: 8) {
-                        Text("🎁").font(.system(size: 56))
+                        Text("🎁").font(.system(size: 56)).ambient(.sway)
                         Text(headline).font(.title3.bold()).multilineTextAlignment(.center)
                         if !package.sender.isEmpty {
                             Text("Ուղարկեց՝ \(package.sender)").font(.subheadline).foregroundStyle(.secondary)

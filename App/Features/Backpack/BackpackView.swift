@@ -11,12 +11,13 @@ struct BackpackCard: View {
                 ZStack {
                     ProgressRing(progress: viewModel.progress, lineWidth: 6, tint: .orange)
                     Text(viewModel.isComplete ? "✅" : "🎒").font(.title2)
+                        .ambient(viewModel.isComplete ? .pulse : .sway)
                         .themedPop(trigger: viewModel.isComplete)
                 }
                 .frame(width: 54, height: 54)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Պայուսակ").font(.headline)
-                    Text(viewModel.isComplete ? "Պատրաստ է, ոչինչ չես մոռացել 👏"
+                    EmojiText(viewModel.isComplete ? "Պատրաստ է, ոչինչ չես մոռացել 👏"
                          : "Հավաքված է՝ \(viewModel.packedCount)/\(viewModel.items.count)")
                         .font(.subheadline).foregroundStyle(.secondary)
                 }

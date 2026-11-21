@@ -178,3 +178,95 @@ private struct Rise: ViewModifier {
             }
     }
 }
+
+// MARK: - Ambient motion
+
+/// Always-on gentle motion for decorative emoji and icons (sun spins, balloon bobs, star twinkles…).
+/// Kid themes move clearly; teen themes at about a third; Reduce Motion keeps everything still.
+enum Ambient {
+    case spin, bob, sway, pulse, twinkle
+
+    /// The motion that suits an emoji.
+    init(emoji: String) {
+        switch emoji {
+        case "☀️": self = .spin
+        case "✨", "⭐️", "🌟": self = .twinkle
+        case "🌙", "🏆", "🌱", "🎒", "🎉", "🍎", "👋", "🎁": self = .sway
+        case "💪", "🔥", "✅", "👏": self = .pulse
+        default: self = .bob
+        }
+    }
+}
+
+extension View {
+    /// Loops a small decorative motion; use on emoji and SF Symbols, not on text or controls.
+    func ambient(_ kind: Ambient) -> some View { modifier(AmbientMotion(kind: kind)) }
+}
+
+private struct AmbientMotion: ViewModifier {
+    let kind: Ambient
+    @Environment(\.theme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if reduceMotion {
+            content
+        } else {
+            let k: CGFloat = theme.isPlayful ? 1 : 0.35
+            let pace: Double = theme.isPlayful ? 1 : 1.6
+            switch kind {
+            case .spin:
+                TimelineView(.animation(minimumInterval: 1.0 / 30)) { context in
+                    let period = 12 * pace
+                    let turn = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: period) / period
+                    content.rotationEffect(.degrees(turn * 360))
+                }
+            case .bob:
+                content.phaseAnimator([false, true]) { view, up in
+                    view.offset(y: up ? -5 * k : 1)
+                } animation: { _ in .easeInOut(duration: 1.3 * pace) }
+            case .sway:
+                content.phaseAnimator([false, true]) { view, right in
+                    view.rotationEffect(.degrees(right ? 12 * k : -12 * k), anchor: .bottom)
+                } animation: { _ in .easeInOut(duration: 1.1 * pace) }
+            case .pulse:
+                content.phaseAnimator([false, true]) { view, big in
+                    view.scaleEffect(big ? 1 + 0.15 * k : 1)
+                } animation: { _ in .easeInOut(duration: 0.8 * pace) }
+            case .twinkle:
+                content.phaseAnimator([false, true]) { view, lit in
+                    view.scaleEffect(lit ? 1 + 0.2 * k : 1 - 0.06 * k)
+                        .rotationEffect(.degrees(lit ? 14 * k : -8 * k))
+                } animation: { _ in .easeInOut(duration: 1.0 * pace) }
+            }
+        }
+    }
+}
+
+/// Text whose trailing emoji keeps a small theme motion, e.g. "Լավ սկիզբ է 🚀".
+struct EmojiText: View {
+    let text: String
+
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        let (head, emoji) = Self.split(text)
+        if let emoji {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(head)
+                Text(emoji).ambient(Ambient(emoji: emoji))
+            }
+            .accessibilityElement(children: .combine)
+        } else {
+            Text(text)
+        }
+    }
+
+    /// Splits off a trailing emoji (pictographs only, so digits and punctuation stay).
+    static func split(_ text: String) -> (String, String?) {
+        guard let last = text.last,
+              let scalar = last.unicodeScalars.first,
+              scalar.properties.isEmoji, scalar.value >= 0x2600 else { return (text, nil) }
+        return (String(text.dropLast()).trimmingCharacters(in: .whitespaces), String(last))
+    }
+}

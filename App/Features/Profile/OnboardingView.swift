@@ -141,7 +141,7 @@ struct OnboardingView: View {
                 Capsule().fill(Color.primary).frame(width: 220, height: 4)
             }
             .padding(.horizontal, 24)
-            Text(profile.firstName.isEmpty ? " " : "Բարև, \(profile.firstName) 👋")
+            EmojiText(profile.firstName.isEmpty ? " " : "Բարև, \(profile.firstName) 👋")
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .contentTransition(.interpolate)

@@ -49,7 +49,7 @@ struct NowCard: View {
                     Text("Ընդամենը՝ \(lessons.count) դաս").font(.subheadline.weight(.semibold)).opacity(0.9)
                 }
             } else {
-                Text("Դասեր չկան, ազատ օր է 🎉").font(.title2.bold())
+                EmojiText("Դասեր չկան, ազատ օր է 🎉").font(.title2.bold())
             }
         }
     }
@@ -60,10 +60,11 @@ struct NowCard: View {
                 .font(.system(size: 30, weight: .bold))
                 .frame(width: 64, height: 64)
                 .themedIdle()
+                .ambient(.bob)
                 .background(ink.opacity(0.22), in: .rect(cornerRadius: 20, style: .continuous))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 6) {
-                Text(badge)
+                EmojiText(badge)
                     .font(.caption.weight(.heavy))
                     .padding(.horizontal, 10).padding(.vertical, 4)
                     .background(ink.opacity(0.25), in: .capsule)
