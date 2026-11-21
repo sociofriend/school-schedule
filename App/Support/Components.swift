@@ -79,7 +79,7 @@ struct TaskRow: View {
                     if !caption.isEmpty { Text(caption).font(.caption).foregroundStyle(.secondary) }
                 }
                 Spacer(minLength: 0)
-                if isDone { Text("⭐️").transition(.scale) }
+                if isDone { Text("⭐️").ambient(.twinkle).transition(.scale) }
             }
             .frame(minHeight: 44)
             .contentShape(.rect)

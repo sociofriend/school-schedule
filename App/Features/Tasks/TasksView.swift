@@ -13,7 +13,7 @@ struct TasksView: View {
                     HStack(spacing: 16) {
                         ZStack {
                             ProgressRing(progress: viewModel.progress, lineWidth: 8, tint: .yellow)
-                            Text("⭐️").font(.title2)
+                            Text("⭐️").font(.title2).ambient(.twinkle)
                         }
                         .frame(width: 60, height: 60)
                         .themedPop(trigger: viewModel.starsThisWeek)
@@ -23,11 +23,11 @@ struct TasksView: View {
                                 Label {
                                     Text("\(viewModel.streak) օր անընդմեջ")
                                 } icon: {
-                                    Image(systemName: "flame.fill").themedIdle().themedDoneEffect(value: viewModel.streak)
+                                    Image(systemName: "flame.fill").ambient(.pulse).themedDoneEffect(value: viewModel.streak)
                                 }
                                 .font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
                             }
-                            Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
+                            EmojiText(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
                         }
                     }
                     .padding(.vertical, 6)
@@ -49,7 +49,7 @@ struct TasksView: View {
                 if viewModel.groups.isEmpty {
                     ContentUnavailableView {
                         Label {
-                            Text("Ամեն ինչ արված է 🏆")
+                            EmojiText("Ամեն ինչ արված է 🏆")
                         } icon: {
                             Image(systemName: "party.popper.fill").themedFloat()
                         }
@@ -76,7 +76,7 @@ struct TasksView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 if viewModel.remainingCount > 0 {
-                    Text("Մնացել է՝ \(viewModel.remainingCount) 💪")
+                    EmojiText("Մնացել է՝ \(viewModel.remainingCount) 💪")
                         .font(.footnote.weight(.medium))
                         .padding(.horizontal, 14).padding(.vertical, 8)
                         .background(.regularMaterial, in: .capsule)

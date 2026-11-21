@@ -47,7 +47,7 @@ struct TodayView: View {
         HStack(alignment: .center, spacing: 16) {
             AvatarView(profile: profile, size: 60)
             VStack(alignment: .leading, spacing: 6) {
-                Text(greetingText)
+                EmojiText(greetingText)
                     .font(.largeTitle.bold())
                     .accessibilityAddTraits(.isHeader)
                 Text(viewModel.dayLabel)
@@ -122,7 +122,7 @@ struct TodayView: View {
                     .foregroundStyle(.green)
                     .buttonStyle(BouncyButtonStyle())
             }
-            Text(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
+            EmojiText(viewModel.cheer).font(.subheadline).foregroundStyle(.secondary)
             VStack(spacing: 4) {
                 ForEach(viewModel.snapshot.tasks) { task in
                     TaskRow(title: task.title, subject: task.subject, isDone: task.isDone) {
@@ -146,7 +146,7 @@ struct TodayView: View {
                 .frame(width: 110, height: 110)
                 .background(theme.accent.gradient, in: .circle)
             Text("Եկ ծանոթանանք դասացուցակիդ հետ").font(.title3.bold()).multilineTextAlignment(.center)
-            Text("Լուսանկարիր այն, և ես ամեն ինչ կդասավորեմ 📸")
+            EmojiText("Լուսանկարիր այն, և ես ամեն ինչ կդասավորեմ 📸")
                 .foregroundStyle(.secondary).multilineTextAlignment(.center)
             Button {
                 isScanning = true
@@ -174,7 +174,7 @@ struct SectionTitle: View {
         Label {
             Text(text).font(.title2.bold())
         } icon: {
-            Image(systemName: symbol).foregroundStyle(tint)
+            Image(systemName: symbol).foregroundStyle(tint).ambient(.sway)
         }
         .accessibilityAddTraits(.isHeader)
     }
