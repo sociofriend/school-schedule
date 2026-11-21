@@ -9,8 +9,8 @@ options:
   xcodeVersion: "27.0"
 settings:
   base:
-    # Armenian-only app: Xcode extracts SwiftUI literals into App/Resources/Localizable.xcstrings on build.
-    SWIFT_EMIT_LOC_STRINGS: YES
+    # Armenian-only app: keep Localizable.xcstrings static instead of rewriting it on every build.
+    SWIFT_EMIT_LOC_STRINGS: NO
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     DEVELOPMENT_TEAM: ""            # ← your Apple Team ID
     BUNDLE_ID_BASE: am.dasacucak    # ← your bundle id

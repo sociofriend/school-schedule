@@ -5,6 +5,7 @@ struct NewNoteSheet: View {
     @Bindable var viewModel: NotesViewModel
     let onContinue: (LessonRoute) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.schoolGrade) private var schoolGrade
     @State private var isOther = false
 
     var body: some View {
@@ -52,7 +53,7 @@ struct NewNoteSheet: View {
 
     private func subjectChip(_ subject: String) -> some View {
         let isOn = !isOther && viewModel.draftSubject == subject
-        let style = SubjectStyle(subject: subject)
+        let style = SubjectStyle(subject: subject, grade: schoolGrade ?? SubjectStyle.savedGrade)
         return Button {
             isOther = false
             viewModel.draftSubject = subject

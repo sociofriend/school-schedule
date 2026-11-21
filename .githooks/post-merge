@@ -1,0 +1,12 @@
+#!/bin/sh
+# Auto-regenerate SchoolSchedule.xcodeproj after `git pull` / `git merge`.
+set -e
+
+XCODEGEN="$(command -v xcodegen || true)"
+if [ -z "$XCODEGEN" ] && [ -x "$HOME/xcodegen/bin/xcodegen" ]; then
+    XCODEGEN="$HOME/xcodegen/bin/xcodegen"
+fi
+
+if [ -n "$XCODEGEN" ]; then
+    "$XCODEGEN" generate
+fi

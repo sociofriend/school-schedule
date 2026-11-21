@@ -11,6 +11,7 @@ struct SubjectStyle: Equatable {
         case primary, middle, high // 1–4, 5–9, 10–12
 
         init?(grade: Int?) {
+            guard let grade else { return nil }
             switch grade {
             case 1...4: self = .primary
             case 5...9: self = .middle

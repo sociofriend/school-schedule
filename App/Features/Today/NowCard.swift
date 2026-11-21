@@ -8,6 +8,7 @@ struct NowCard: View {
     let lessonsDone: Int
     let isToday: Bool
     @Environment(\.theme) private var theme
+    @Environment(\.schoolGrade) private var schoolGrade
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -56,7 +57,7 @@ struct NowCard: View {
 
     private func row(_ lesson: LessonSlot, badge: String, @ViewBuilder detail: () -> some View) -> some View {
         HStack(alignment: .top, spacing: 14) {
-            Image(systemName: SubjectStyle(subject: lesson.subject).symbol)
+            Image(systemName: SubjectStyle(subject: lesson.subject, grade: schoolGrade ?? SubjectStyle.savedGrade).symbol)
                 .font(.system(size: 30, weight: .bold))
                 .frame(width: 64, height: 64)
                 .themedIdle()
