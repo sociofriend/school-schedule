@@ -38,7 +38,7 @@ final class LessonDetailViewModel {
     }
 
     var title: String { route.subject }
-    var dateText: String { route.day.formatted(.dateTime.weekday(.wide).day().month(.wide)) }
+    var dateText: String { route.day.armenianLongDay }
 
     func reload() {
         photos = note.photos.sorted { $0.createdAt < $1.createdAt }

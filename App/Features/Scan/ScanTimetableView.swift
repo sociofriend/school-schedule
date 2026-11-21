@@ -20,7 +20,7 @@ struct ScanTimetableView: View {
                     ToolbarItem(placement: .cancellationAction) { Button("Փակել") { dismiss() } }
                 }
                 .navigationDestination(isPresented: $showsManualEditor) {
-                    TimetableEditorView(store: store) { dismiss() }
+                    TimetableEditorView(store: store) { dismiss() }.armenianBackButton()
                 }
         }
         .fullScreenCover(isPresented: $isCameraPresented) {

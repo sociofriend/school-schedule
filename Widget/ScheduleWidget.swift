@@ -6,6 +6,7 @@ struct ScheduleWidget: Widget {
         StaticConfiguration(kind: "ScheduleWidget", provider: ScheduleProvider()) { entry in
             ScheduleWidgetView(entry: entry)
                 .fontDesign(.rounded)
+                .environment(\.locale, .armenian)
                 .containerBackground(for: .widget) {
                     LinearGradient(colors: [Color.accentColor.opacity(0.18), Color(.systemBackground)],
                                    startPoint: .topLeading, endPoint: .bottomTrailing)
