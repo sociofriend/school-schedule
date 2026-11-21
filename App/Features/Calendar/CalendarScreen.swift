@@ -10,7 +10,7 @@ struct CalendarScreen: View {
                 Section {
                     MonthCalendarView(selection: $viewModel.selectedDate, markedDays: viewModel.markedDays)
                 }
-                Section(viewModel.selectedDate.formatted(.dateTime.weekday(.wide).day().month(.wide))) {
+                Section(viewModel.selectedDate.armenianLongDay) {
                     if viewModel.snapshot.lessons.isEmpty {
                         Text("Դասեր չկան").foregroundStyle(.secondary)
                     }

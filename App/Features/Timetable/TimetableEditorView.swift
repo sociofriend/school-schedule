@@ -3,6 +3,7 @@ import SwiftUI
 struct TimetableEditorView: View {
     @State private var viewModel: TimetableEditorViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var editMode: EditMode = .inactive
     var onSave: () -> Void = {}
 
     init(store: DataStore, scanned: ParsedTimetable? = nil, onSave: @escaping () -> Void = {}) {
@@ -38,8 +39,12 @@ struct TimetableEditorView: View {
                             .multilineTextAlignment(.trailing)
                             .foregroundStyle(.secondary)
                     }
+                    .swipeActions {
+                        Button("Ջնջել", role: .destructive) {
+                            if let index = viewModel.rows.firstIndex(of: row) { viewModel.delete(at: IndexSet(integer: index)) }
+                        }
+                    }
                 }
-                .onDelete(perform: viewModel.delete)
                 .onMove(perform: viewModel.move)
                 Button("Ավելացնել դաս", systemImage: "plus", action: viewModel.addRow)
             }
@@ -54,7 +59,8 @@ struct TimetableEditorView: View {
                     dismiss()
                 }
             }
-            ToolbarItem(placement: .topBarLeading) { EditButton() }
+            ToolbarItem(placement: .topBarTrailing) { ArmenianEditButton(editMode: $editMode) }
         }
+        .environment(\.editMode, $editMode)
     }
 }

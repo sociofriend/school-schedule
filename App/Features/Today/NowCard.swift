@@ -67,7 +67,7 @@ struct NowCard: View {
                     .background(.white.opacity(0.25), in: .capsule)
                 Text(lesson.subject).font(.title2.bold()).lineLimit(2).minimumScaleFactor(0.8)
                 HStack(spacing: 10) {
-                    if let start = lesson.start { Label(start.formatted(date: .omitted, time: .shortened), systemImage: "clock") }
+                    if let start = lesson.start { Label(start.armenianTime, systemImage: "clock") }
                     if !lesson.room.isEmpty { Label(lesson.room, systemImage: "door.left.hand.open") }
                 }
                 .font(.subheadline.weight(.medium)).opacity(0.9)
