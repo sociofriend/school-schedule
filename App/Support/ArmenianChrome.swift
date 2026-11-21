@@ -4,7 +4,7 @@ import UIKit
 /// iOS has no Armenian system strings, so "Back", "Edit" and the search "Cancel" would show in English.
 /// These replace them with Armenian controls.
 extension View {
-    /// Armenian back button for pushed screens; the swipe-back gesture keeps working.
+    /// Armenian back button for pushed screens; the swipe-back gesture keeps working (see `SwipeBackEnabler`).
     func armenianBackButton() -> some View { modifier(ArmenianBackButton()) }
 }
 
@@ -14,6 +14,7 @@ private struct ArmenianBackButton: ViewModifier {
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden()
+            .background(SwipeBackEnabler().frame(width: 0, height: 0).accessibilityHidden(true))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
@@ -46,14 +47,27 @@ enum ArmenianChrome {
     }
 }
 
-/// Keeps swipe-back working when the system back button is hidden.
-extension UINavigationController: UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
+/// Re-enables swipe-back on the enclosing navigation controller, which UIKit turns off when the back button is hidden.
+/// Uses a shared delegate object rather than conforming `UINavigationController` to the protocol retroactively.
+private struct SwipeBackEnabler: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> Probe { Probe() }
+    func updateUIViewController(_ probe: Probe, context: Context) {}
 
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        viewControllers.count > 1
+    final class Probe: UIViewController {
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            navigationController?.interactivePopGestureRecognizer?.delegate = SwipeBackDelegate.shared
+        }
+    }
+}
+
+private final class SwipeBackDelegate: NSObject, UIGestureRecognizerDelegate {
+    static let shared = SwipeBackDelegate()
+
+    /// Only when there is a screen to go back to, so the root never half-pops.
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        var responder: UIResponder? = gestureRecognizer.view
+        while let current = responder, !(current is UINavigationController) { responder = current.next }
+        return ((responder as? UINavigationController)?.viewControllers.count ?? 0) > 1
     }
 }
