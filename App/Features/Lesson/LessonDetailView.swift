@@ -56,7 +56,10 @@ struct LessonDetailView: View {
                 TextField("Նոր տնային", text: $viewModel.newTaskTitle)
                     .focused($isTaskFieldFocused)
                     .submitLabel(.done)
-                    .onSubmit(viewModel.addTask)
+                    .onSubmit {
+                        viewModel.addTask()
+                        isTaskFieldFocused = false
+                    }
                 DatePicker("Հանձնել", selection: $viewModel.newTaskDue, displayedComponents: .date)
                 Button("Ավելացնել", systemImage: "plus", action: viewModel.addTask)
                     .disabled(viewModel.newTaskTitle.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -65,6 +68,7 @@ struct LessonDetailView: View {
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .armenianBackButton()
+        .keyboardDismissable()
         .tint(SubjectStyle(subject: viewModel.title).color)
         .toolbar {
             ToolbarItem(placement: .principal) {

@@ -28,6 +28,8 @@ struct NewNoteSheet: View {
                     }
                     if isOther || viewModel.timetableSubjects.isEmpty {
                         TextField("Առարկայի անունը", text: $viewModel.draftSubject)
+                            .submitLabel(.done)
+                            .onSubmit { UIApplication.dismissKeyboard() }
                     }
                 }
                 Section {
@@ -36,6 +38,7 @@ struct NewNoteSheet: View {
             }
             .navigationTitle("Նոր գրառում")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDismissable()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Չեղարկել") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -48,7 +51,7 @@ struct NewNoteSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 
     private func subjectChip(_ subject: String) -> some View {

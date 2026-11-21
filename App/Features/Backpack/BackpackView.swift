@@ -86,7 +86,10 @@ struct BackpackSheet: View {
                     HStack {
                         TextField("Էլ ինչ վերցնել…", text: $viewModel.newExtra)
                             .submitLabel(.done)
-                            .onSubmit(viewModel.addExtra)
+                            .onSubmit {
+                                viewModel.addExtra()
+                                UIApplication.dismissKeyboard()
+                            }
                         Button("Ավելացնել", systemImage: "plus.circle.fill", action: viewModel.addExtra)
                             .labelStyle(.iconOnly).font(.title2)
                             .disabled(viewModel.newExtra.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -112,6 +115,7 @@ struct BackpackSheet: View {
             .overlay { ConfettiView(trigger: viewModel.celebrations).ignoresSafeArea() }
             .navigationTitle("🎒 Պայուսակ")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDismissable()
             .toolbar { Button("Պատրաստ է") { dismiss() }.fontWeight(.semibold) }
         }
         .presentationDetents([.medium, .large])

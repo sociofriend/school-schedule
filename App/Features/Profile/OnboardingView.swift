@@ -127,26 +127,35 @@ struct OnboardingView: View {
     }
 
     private var namePage: some View {
-        VStack(spacing: 28) {
-            title("Ինչպե՞ս է\nքո անունը")
-            VStack(spacing: 10) {
-                TextField("Անուն", text: $profile.name)
-                    .font(.system(size: 48, weight: .heavy))
-                    .multilineTextAlignment(.center)
-                    .textContentType(.givenName)
-                    .autocorrectionDisabled()
-                    .submitLabel(.next)
-                    .focused($isNameFocused)
-                    .onSubmit(next)
-                Capsule().fill(Color.primary).frame(width: 220, height: 4)
+        ScrollView {
+            VStack(spacing: 28) {
+                title("Ինչպե՞ս է\nքո անունը")
+                VStack(spacing: 10) {
+                    TextField("Անուն", text: $profile.name)
+                        .font(.system(size: 48, weight: .heavy))
+                        .multilineTextAlignment(.center)
+                        .textContentType(.givenName)
+                        .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($isNameFocused)
+                        .onSubmit {
+                            if profile.canFinish { next() } else { isNameFocused = false }
+                        }
+                    Capsule().fill(Color.primary).frame(width: 220, height: 4)
+                }
+                .padding(.horizontal, 24)
+                EmojiText(profile.firstName.isEmpty ? " " : "Բարև, \(profile.firstName) 👋")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.interpolate)
+                    .animation(.snappy, value: profile.firstName)
             }
-            .padding(.horizontal, 24)
-            EmojiText(profile.firstName.isEmpty ? " " : "Բարև, \(profile.firstName) 👋")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-                .contentTransition(.interpolate)
-                .animation(.snappy, value: profile.firstName)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 16)
         }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .keyboardDismissable()
         .onAppear { isNameFocused = true }
     }
 

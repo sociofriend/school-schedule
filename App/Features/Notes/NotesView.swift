@@ -54,6 +54,7 @@ struct NotesView: View {
                 }
             }
             .searchable(text: $viewModel.searchText, prompt: "Որոնել գրառումներում")
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Գրառումներ")
             .navigationDestination(for: LessonRoute.self) { LessonDetailView(store: store, route: $0) }
             .toolbar {
@@ -93,6 +94,8 @@ private struct NoteRow: View {
                 PhotoThumbnail(data: photo.imageData, maxPixelSize: 160)
                     .frame(width: 44, height: 44)
                     .clipShape(.rect(cornerRadius: 8))
+            } else {
+                SubjectIcon(subject: note.subject, size: 44)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(note.subject).font(.headline)

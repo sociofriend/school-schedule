@@ -33,9 +33,10 @@ struct ProgressRing: View {
         ZStack {
             Circle().stroke(tint.opacity(0.2), lineWidth: lineWidth)
             Circle()
-                .trim(from: 0, to: max(0.001, progress))
+                .trim(from: 0, to: progress)
                 .stroke(tint.gradient, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
+                .opacity(progress > 0 ? 1 : 0)
                 .animation(.spring(response: 0.6, dampingFraction: 0.7), value: progress)
         }
         .accessibilityElement()

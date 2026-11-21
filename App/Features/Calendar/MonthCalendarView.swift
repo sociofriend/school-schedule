@@ -62,7 +62,11 @@ struct MonthCalendarView: View {
                 anchor = selection
                 weekMode.toggle()
             } label: {
-                Image(systemName: weekMode ? "chevron.down.circle" : "chevron.up.circle")
+                Text(weekMode ? "Ամիս" : "Շաբաթ")
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(theme.accent.opacity(0.14), in: .capsule)
             }
             .accessibilityLabel(weekMode ? "Ցույց տալ ամիսը" : "Ցույց տալ շաբաթը")
         }
@@ -94,7 +98,7 @@ struct MonthCalendarView: View {
                                 .offset(x: 3, y: -2)
                         }
                     }
-                MarkDots(marks: mark, accent: theme.accent)
+                MarkDots(marks: mark)
             }
             .frame(maxWidth: .infinity)
             .contentShape(.rect)
@@ -107,7 +111,7 @@ struct MonthCalendarView: View {
 
     private var legend: some View {
         HStack(spacing: 10) {
-            LegendItem(color: theme.accent, title: "Տնային")
+            LegendItem(color: .orange, title: "Տնային")
             LegendItem(color: .green, title: "Արված")
             LegendItem(color: .blue, title: "Գրառում")
             LegendItem(color: .teal, title: "Նկար")
@@ -156,11 +160,10 @@ struct MonthCalendarView: View {
 /// Up to three dots under a day number; keeps its height when empty so rows line up.
 private struct MarkDots: View {
     let marks: DayMarks
-    let accent: Color
 
     var body: some View {
         HStack(spacing: 3) {
-            if marks.pendingHomework > 0 { dot(accent) } else if marks.allDone { dot(.green) }
+            if marks.pendingHomework > 0 { dot(.orange) } else if marks.allDone { dot(.green) }
             if marks.hasNote { dot(.blue) }
             if marks.hasPhoto { dot(.teal) }
         }

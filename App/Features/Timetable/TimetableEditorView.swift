@@ -34,13 +34,20 @@ struct TimetableEditorView: View {
                             .monospacedDigit().foregroundStyle(.secondary)
                         TextField("Առարկա (դատարկ՝ ազատ ժամ)", text: $row.subject)
                             .textInputAutocapitalization(.sentences)
-                        Button("Ընտրել ցանկից", systemImage: "list.bullet") { viewModel.pickerTarget = .row(row.id) }
-                            .labelStyle(.iconOnly)
-                            .buttonStyle(.borderless)
+                            .submitLabel(.done)
+                            .onSubmit { UIApplication.dismissKeyboard() }
+                        Button("Ցանկ") { viewModel.pickerTarget = .row(row.id) }
+                            .font(.caption.weight(.semibold))
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+                            .controlSize(.small)
+                            .accessibilityLabel("Ընտրել առարկա ցանկից")
                         TextField("Սենյակ", text: $row.room)
                             .frame(maxWidth: 80)
                             .multilineTextAlignment(.trailing)
                             .foregroundStyle(.secondary)
+                            .submitLabel(.done)
+                            .onSubmit { UIApplication.dismissKeyboard() }
                     }
                     .swipeActions {
                         Button("Ջնջել", role: .destructive) {
@@ -54,6 +61,7 @@ struct TimetableEditorView: View {
         }
         .navigationTitle(viewModel.isReviewingScan ? "Ստուգում" : "Դասացուցակ")
         .navigationBarTitleDisplayMode(.inline)
+        .keyboardDismissable()
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Պահել") {

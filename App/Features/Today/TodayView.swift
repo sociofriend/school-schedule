@@ -48,7 +48,9 @@ struct TodayView: View {
             AvatarView(profile: profile, size: 60)
             VStack(alignment: .leading, spacing: 6) {
                 EmojiText(greetingText)
-                    .font(.largeTitle.bold())
+                    .font(.title.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .accessibilityAddTraits(.isHeader)
                 Text(viewModel.dayLabel)
                     .font(.title3.weight(.semibold))

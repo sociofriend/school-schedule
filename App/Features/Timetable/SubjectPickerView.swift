@@ -19,7 +19,13 @@ struct SubjectPickerView: View {
                         TextField("Այլ առարկա / Ձեռքով մուտքագրել", text: $custom)
                             .textInputAutocapitalization(.sentences)
                             .submitLabel(.done)
-                            .onSubmit { pick(custom) }
+                            .onSubmit {
+                                if custom.trimmingCharacters(in: .whitespaces).isEmpty {
+                                    UIApplication.dismissKeyboard()
+                                } else {
+                                    pick(custom)
+                                }
+                            }
                         if !custom.trimmingCharacters(in: .whitespaces).isEmpty {
                             Button("Ավելացնել") { pick(custom) }.fontWeight(.semibold)
                         }
@@ -40,6 +46,7 @@ struct SubjectPickerView: View {
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Որոնել առարկա")
             .navigationTitle("Առարկա")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDismissable()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Չեղարկել") { dismiss() } }
             }

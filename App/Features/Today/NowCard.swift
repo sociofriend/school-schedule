@@ -13,7 +13,7 @@ struct NowCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             content
-            if !lessons.isEmpty { beads }
+            if showsDayProgress { beads }
         }
         .foregroundStyle(ink)
         .padding(18)
@@ -90,16 +90,32 @@ struct NowCard: View {
         }
     }
 
-    /// One bead per lesson, filled once it has ended.
-    private var beads: some View {
-        HStack(spacing: 6) {
-            ForEach(Array(lessons.enumerated()), id: \.element.id) { index, lesson in
-                Capsule()
-                    .fill(ink.opacity(index < lessonsDone ? 1 : 0.3))
-                    .frame(height: 8)
-            }
+    /// Only show day progress during today's school hours (not when previewing tomorrow or before school starts).
+    private var showsDayProgress: Bool {
+        guard isToday, !lessons.isEmpty else { return false }
+        switch phase {
+        case .inLesson, .onBreak: return true
+        case .finished: return lessonsDone > 0
+        case .beforeSchool, nil: return false
         }
-        .animation(.spring, value: lessonsDone)
+    }
+
+    /// One bead per lesson, filled once it has ended, with a clear count label.
+    private var beads: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Անցած դասեր՝ \(lessonsDone)/\(lessons.count)")
+                .font(.caption.weight(.semibold))
+                .opacity(0.85)
+            HStack(spacing: 6) {
+                ForEach(Array(lessons.enumerated()), id: \.element.id) { index, _ in
+                    Capsule()
+                        .fill(ink.opacity(index < lessonsDone ? 1 : 0.3))
+                        .frame(height: 8)
+                }
+            }
+            .animation(.spring, value: lessonsDone)
+        }
+        .accessibilityElement(children: .combine)
         .accessibilityLabel("Անցած դասեր՝ \(lessonsDone)՝ \(lessons.count)-ից")
     }
 

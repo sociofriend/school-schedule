@@ -64,8 +64,14 @@ struct TasksView: View {
             .navigationTitle("Անելիքներ")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Toggle(isOn: $viewModel.showsCompleted) { Label("Կատարվածները", systemImage: "eye") }
-                        .toggleStyle(.button)
+                    Button {
+                        viewModel.showsCompleted.toggle()
+                    } label: {
+                        Label("Արվածները", systemImage: viewModel.showsCompleted ? "eye" : "eye.slash")
+                            .labelStyle(.titleAndIcon)
+                            .font(.subheadline)
+                    }
+                    .accessibilityLabel(viewModel.showsCompleted ? "Թաքցնել կատարվածները" : "Ցույց տալ կատարվածները")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Ավելացնել", systemImage: "plus") {
@@ -108,7 +114,10 @@ struct AddTaskSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Ինչ անել", text: $viewModel.draftTitle, axis: .vertical).focused($focused)
+                    TextField("Ինչ անել", text: $viewModel.draftTitle)
+                        .focused($focused)
+                        .submitLabel(.done)
+                        .onSubmit { focused = false }
                     ScrollView(.horizontal) {
                         HStack {
                             ForEach(TasksViewModel.quickTitles, id: \.self) { title in
@@ -128,6 +137,7 @@ struct AddTaskSheet: View {
             }
             .navigationTitle("Նոր անելիք")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDismissable()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Չեղարկել") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -140,6 +150,6 @@ struct AddTaskSheet: View {
             }
             .onAppear { focused = true }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 }

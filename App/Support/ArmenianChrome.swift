@@ -6,6 +6,75 @@ import UIKit
 extension View {
     /// Armenian back button for pushed screens; the swipe-back gesture keeps working (see `SwipeBackEnabler`).
     func armenianBackButton() -> some View { modifier(ArmenianBackButton()) }
+
+    /// Dismisses the keyboard on scroll, on tapping outside text inputs, and via a "Պատրաստ է" keyboard button.
+    func keyboardDismissable() -> some View { modifier(KeyboardDismissable()) }
+}
+
+extension UIApplication {
+    /// Resigns the current first responder to dismiss the keyboard cleanly.
+    static func dismissKeyboard() {
+        shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+private struct KeyboardDismissable: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .scrollDismissesKeyboard(.interactively)
+            .background(KeyboardTapDismisser().frame(width: 0, height: 0).accessibilityHidden(true))
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Պատրաստ է") { UIApplication.dismissKeyboard() }
+                        .fontWeight(.semibold)
+                }
+            }
+    }
+}
+
+/// Non-interfering tap recognizer on the window that dismisses the keyboard when tapping outside text inputs.
+private struct KeyboardTapDismisser: UIViewRepresentable {
+    func makeUIView(context: Context) -> Probe { Probe() }
+    func updateUIView(_ uiView: Probe, context: Context) {}
+
+    final class Probe: UIView, UIGestureRecognizerDelegate {
+        private weak var installedOn: UIView?
+        private lazy var tap: UITapGestureRecognizer = {
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+            recognizer.cancelsTouchesInView = false
+            recognizer.delegate = self
+            return recognizer
+        }()
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            installedOn?.removeGestureRecognizer(tap)
+            guard let target = window else { installedOn = nil; return }
+            target.addGestureRecognizer(tap)
+            installedOn = target
+        }
+
+        deinit { installedOn?.removeGestureRecognizer(tap) }
+
+        @objc private func handleTap() {
+            window?.endEditing(true)
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            var current = touch.view
+            while let view = current {
+                if view is UITextField || view is UITextView || view is UISearchBar || view is UIControl {
+                    return false
+                }
+                current = view.superview
+            }
+            return true
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
+    }
 }
 
 private struct ArmenianBackButton: ViewModifier {

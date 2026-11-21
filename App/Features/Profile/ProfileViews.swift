@@ -302,7 +302,10 @@ struct ProfileEditView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
             Section("Անուն") {
-                TextField("Անունդ", text: $profile.name).textContentType(.givenName)
+                TextField("Անունդ", text: $profile.name)
+                    .textContentType(.givenName)
+                    .submitLabel(.done)
+                    .onSubmit { UIApplication.dismissKeyboard() }
             }
             Section {
                 Picker("Դասարան", selection: $profile.grade) {
@@ -310,7 +313,7 @@ struct ProfileEditView: View {
                     ForEach(ArmenianCurriculum.grades, id: \.self) { Text(ArmenianCurriculum.gradeName($0)).tag(Int?.some($0)) }
                 }
             } footer: {
-                Text("Դասացուցակ կազմելիս կառաջարկվեն քո դասարանի առարկաները։")
+                Text("Ըստ դասարանի կառաջարկվեն քո առարկաները և կփոխվեն դրանց պատկերակները։")
             }
             if profile.photo != nil {
                 Section {
@@ -319,5 +322,6 @@ struct ProfileEditView: View {
             }
         }
         .navigationTitle("Իմ պրոֆիլը")
+        .keyboardDismissable()
     }
 }
