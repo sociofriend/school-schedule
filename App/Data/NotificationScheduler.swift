@@ -77,7 +77,7 @@ final class NotificationScheduler: NSObject {
         let content = UNMutableNotificationContent()
         content.title = "Վաղը՝ \(Weekday.name(Calendar.current.component(.weekday, from: snapshot.date)))"
         var lines = snapshot.lessons.map { lesson in
-            let time = lesson.start.map { " · \($0.armenianTime)" } ?? ""
+            let time = lesson.start.map { " · \($0.armenianTime())" } ?? ""
             return "\(lesson.period). \(lesson.subject)\(time)"
         }
         let remaining = snapshot.remainingTasks

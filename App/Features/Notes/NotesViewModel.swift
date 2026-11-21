@@ -19,6 +19,12 @@ final class NotesViewModel {
     }
     private(set) var groups: [DayGroup] = []
     private(set) var subjects: [String] = []
+    /// Subjects from the timetable, for the new-note picker.
+    private(set) var timetableSubjects: [String] = []
+
+    // Draft for the new-note sheet.
+    var draftSubject = ""
+    var draftDay: Date = .now
 
     private let store: DataStore
     private var allNotes: [LessonNote] = []
@@ -40,8 +46,23 @@ final class NotesViewModel {
 
     func reload() {
         allNotes = store.allNotes()
+        timetableSubjects = store.timetable().subjects
         subjects = Array(Set(allNotes.map(\.subject))).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
         apply()
+    }
+
+    /// Defaults to the lesson running now or next today, or today's last lesson after school (when notes get written).
+    func prepareDraft(now: Date = .now) {
+        let calendar = store.calendar
+        let today = store.timetable().slots(on: now, calendar: calendar)
+        let lesson = today.first { ($0.end ?? .distantPast) > now } ?? today.last
+        draftSubject = lesson?.subject ?? timetableSubjects.first ?? ""
+        draftDay = now
+    }
+
+    var draftRoute: LessonRoute? {
+        let subject = draftSubject.trimmingCharacters(in: .whitespacesAndNewlines)
+        return subject.isEmpty ? nil : LessonRoute(day: store.calendar.startOfDay(for: draftDay), subject: subject)
     }
 
     private func apply() {

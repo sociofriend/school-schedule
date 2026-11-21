@@ -63,4 +63,10 @@ final class TimetableTests: XCTestCase {
         XCTAssertEqual(HomeworkStreak.days(tasks: tasks + [(day(19), false)], today: today, calendar: calendar), 0)
         XCTAssertEqual(HomeworkStreak.days(tasks: [(day(20), true)], today: today, calendar: calendar), 1)
     }
+
+    func testTimesAreZeroPadded() {
+        XCTAssertEqual(date(16, 9, 5).armenianTime(calendar: calendar), "09:05")
+        XCTAssertEqual(date(16, 12).armenianTime(calendar: calendar), "12:00")
+        XCTAssertEqual(PeriodRange(start: 545, end: 590).formatted, "09:05–09:50")
+    }
 }
