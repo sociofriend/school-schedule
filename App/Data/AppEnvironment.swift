@@ -11,6 +11,7 @@ final class AppEnvironment {
 
     init(container: ModelContainer = SharedModelContainer.shared) {
         store = DataStore(container: container)
+        store.seedSchedulesIfNeeded()
         store.seedDefaultPeriodsIfNeeded()
         notifications = NotificationScheduler(store: store)
         notifications.start()

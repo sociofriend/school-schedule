@@ -12,14 +12,16 @@ final class DataStore {
     let changes: AnyPublisher<Void, Never>
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Dasacucak", category: "DataStore")
+    private let manualChanges = PassthroughSubject<Void, Never>()
     private var reader: ScheduleReader { ScheduleReader(context: context, calendar: calendar) }
 
     init(container: ModelContainer, calendar: Calendar = .current) {
         self.context = container.mainContext
         self.calendar = calendar
-        self.changes = NotificationCenter.default.publisher(for: ModelContext.didSave)
+        let saves = NotificationCenter.default.publisher(for: ModelContext.didSave)
             .map { _ in () }
             .receive(on: DispatchQueue.main)
+        self.changes = Publishers.Merge(saves, manualChanges)
             .eraseToAnyPublisher()
     }
 
@@ -35,17 +37,111 @@ final class DataStore {
         }
     }
 
-    // MARK: Timetable
+    // MARK: School Years & Timetable
 
-    func timetable() -> Timetable { (try? reader.timetable()) ?? Timetable() }
+    private static let seeded2026Key = "schedule.seeded.2026-2027"
+    private static let customYearsKey = "schedule.customYears"
+
+    var activeSchoolYear: String {
+        get { SchoolYear.active }
+        set {
+            guard SchoolYear.active != newValue else { return }
+            SchoolYear.active = newValue
+            manualChanges.send()
+        }
+    }
+
+    /// All known school years (stored in lessons, custom-added, or currently active), newest first.
+    func schoolYears() -> [String] {
+        var years = Set(fetch(FetchDescriptor<Lesson>()).map(\.schoolYear).filter { !$0.isEmpty })
+        years.formUnion(AppGroup.defaults.stringArray(forKey: Self.customYearsKey) ?? [])
+        years.insert(activeSchoolYear)
+        return years.sorted { lhs, rhs in
+            (SchoolYear.startYear(of: lhs) ?? 0) > (SchoolYear.startYear(of: rhs) ?? 0)
+        }
+    }
+
+    func lessonCount(for schoolYear: String) -> Int {
+        fetch(FetchDescriptor<Lesson>()).filter { $0.schoolYear == schoolYear }.count
+    }
+
+    func addSchoolYear(_ year: String) {
+        let trimmed = year.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        var custom = Set(AppGroup.defaults.stringArray(forKey: Self.customYearsKey) ?? [])
+        custom.insert(trimmed)
+        AppGroup.defaults.set(Array(custom), forKey: Self.customYearsKey)
+        activeSchoolYear = trimmed
+    }
+
+    func deleteSchoolYear(_ year: String) {
+        let years = schoolYears()
+        guard years.count > 1 else { return }
+        fetch(FetchDescriptor<Lesson>()).filter { $0.schoolYear == year }.forEach(context.delete)
+        var custom = Set(AppGroup.defaults.stringArray(forKey: Self.customYearsKey) ?? [])
+        custom.remove(year)
+        AppGroup.defaults.set(Array(custom), forKey: Self.customYearsKey)
+        save()
+        if activeSchoolYear == year, let fallback = years.first(where: { $0 != year }) {
+            activeSchoolYear = fallback
+        } else {
+            manualChanges.send()
+        }
+    }
+
+    /// Migrates pre-year lessons into 2025-2026 and seeds the built-in 2026-2027 schedule once.
+    func seedSchedulesIfNeeded() {
+        let allLessons = fetch(FetchDescriptor<Lesson>())
+        var mutated = false
+        let legacyLessons = allLessons.filter { $0.schoolYear.isEmpty }
+        if !legacyLessons.isEmpty {
+            let targetYear = SchoolYear.legacyYear
+            legacyLessons.forEach { $0.schoolYear = targetYear }
+            mutated = true
+        }
+
+        let alreadySeeded = AppGroup.defaults.bool(forKey: Self.seeded2026Key)
+        let has2026 = allLessons.contains { $0.schoolYear == SchoolYear.preset2026_2027Year }
+        if !alreadySeeded && !has2026 {
+            for entry in SchoolYear.preset2026_2027Entries {
+                context.insert(Lesson(weekday: entry.weekday, period: entry.period, subject: entry.subject,
+                                      room: entry.room, schoolYear: SchoolYear.preset2026_2027Year))
+            }
+            setPeriods(SchoolYear.preset2026_2027Periods, saving: false)
+            SchoolYear.active = SchoolYear.preset2026_2027Year
+            AppGroup.defaults.set(true, forKey: Self.seeded2026Key)
+            mutated = true
+        }
+
+        if mutated {
+            save()
+            manualChanges.send()
+        }
+    }
+
+    /// Restores the 2026-2027 timetable and bell schedule back to the hardcoded preset.
+    func resetPreset2026_2027() {
+        replaceTimetable(with: SchoolYear.preset2026_2027Entries,
+                         periods: SchoolYear.preset2026_2027Periods,
+                         for: SchoolYear.preset2026_2027Year)
+        activeSchoolYear = SchoolYear.preset2026_2027Year
+    }
+
+    func timetable(for schoolYear: String? = nil) -> Timetable {
+        (try? reader.timetable(for: schoolYear)) ?? Timetable()
+    }
 
     func snapshot(for day: Date, timetable: Timetable? = nil) -> DaySnapshot {
         (try? reader.snapshot(for: day, timetable: timetable ?? self.timetable())) ?? .empty(day)
     }
 
-    func replaceTimetable(with entries: [TimetableEntry], periods: [Int: PeriodRange] = [:]) {
-        fetch(FetchDescriptor<Lesson>()).forEach(context.delete)
-        entries.forEach { context.insert(Lesson(weekday: $0.weekday, period: $0.period, subject: $0.subject, room: $0.room)) }
+    func replaceTimetable(with entries: [TimetableEntry], periods: [Int: PeriodRange] = [:], for schoolYear: String? = nil) {
+        let year = schoolYear ?? activeSchoolYear
+        fetch(FetchDescriptor<Lesson>()).filter { $0.schoolYear == year }.forEach(context.delete)
+        entries.forEach {
+            context.insert(Lesson(weekday: $0.weekday, period: $0.period, subject: $0.subject,
+                                  room: $0.room, schoolYear: year))
+        }
         if !periods.isEmpty { setPeriods(periods, saving: false) }
         save()
     }

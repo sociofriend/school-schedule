@@ -6,8 +6,10 @@ struct ScheduleReader {
     let context: ModelContext
     var calendar: Calendar = .current
 
-    func timetable() throws -> Timetable {
-        let lessons = try context.fetch(FetchDescriptor<Lesson>())
+    func timetable(for schoolYear: String? = nil) throws -> Timetable {
+        let activeYear = schoolYear ?? SchoolYear.active
+        let allLessons = try context.fetch(FetchDescriptor<Lesson>())
+        let lessons = allLessons.filter { $0.schoolYear == activeYear || ($0.schoolYear.isEmpty && activeYear == SchoolYear.current()) }
         let periods = try context.fetch(FetchDescriptor<PeriodTime>())
         return Timetable(
             entries: lessons.map { TimetableEntry(weekday: $0.weekday, period: $0.period, subject: $0.subject, room: $0.room) },

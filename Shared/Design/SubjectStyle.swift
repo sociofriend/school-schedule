@@ -46,7 +46,7 @@ struct SubjectStyle: Equatable {
         (["ֆիզկուլտ", "ֆիզ. դաստ", "ֆիզդաստ", "մարմն", "sport", "physical", "физкул"], .pink, "figure.run",
          ["figure.play", "figure.run", "figure.run"]),
         (["երաժշտ", "music", "музык"], .purple, "music.note", ["music.note", "music.note", "music.quarternote.3"]),
-        (["կերպարվ", "նկար", "fine art", "drawing", "рисов", "изо"], Color(red: 0.85, green: 0.58, blue: 0.0), "paintpalette.fill",
+        (["կերպարվ", "արվեստ", "նկար", "fine art", "drawing", "рисов", "изо"], Color(red: 0.85, green: 0.58, blue: 0.0), "paintpalette.fill",
          ["paintbrush.fill", "paintpalette.fill", "paintpalette.fill"]),
         (["ինֆորմատ", "համակարգչ", "comput", "informat", "информ"], .gray, "laptopcomputer",
          ["computermouse.fill", "laptopcomputer", "chevron.left.forwardslash.chevron.right"]),
