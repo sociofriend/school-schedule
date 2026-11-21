@@ -3,10 +3,12 @@ import SwiftUI
 struct TodayView: View {
     let viewModel: TodayViewModel
     let tasks: TasksViewModel
+    let profile: ProfileViewModel
     let store: DataStore
     @State private var isScanning = false
     @State private var isPacking = false
     @State private var isAddingTask = false
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
@@ -28,7 +30,7 @@ struct TodayView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 24)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(theme.background)
             .overlay { ConfettiView(trigger: viewModel.celebrations).ignoresSafeArea() }
             .navigationTitle(viewModel.title)
             .toolbar(.hidden, for: .navigationBar)
@@ -42,8 +44,9 @@ struct TodayView: View {
 
     private var header: some View {
         HStack(alignment: .center, spacing: 16) {
+            AvatarView(photo: profile.photo, name: profile.name, size: 60)
             VStack(alignment: .leading, spacing: 6) {
-                Text("\(viewModel.greeting.title) \(viewModel.greeting.emoji)")
+                Text(greetingText)
                     .font(.largeTitle.bold())
                     .accessibilityAddTraits(.isHeader)
                 Text(viewModel.dayLabel)
@@ -63,6 +66,11 @@ struct TodayView: View {
         .padding(.top, 12)
     }
 
+    private var greetingText: String {
+        let name = profile.firstName
+        return "\(viewModel.greeting.title)\(name.isEmpty ? "" : ", \(name)") \(viewModel.greeting.emoji)"
+    }
+
     private var lessonsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionTitle(text: "Դասեր", symbol: "backpack.fill", tint: .blue)
@@ -72,7 +80,7 @@ struct TodayView: View {
                     LessonRow(lesson: lesson, isCurrent: isCurrent,
                               hasNote: viewModel.subjectsWithNotes.contains(lesson.subject))
                         .padding(12)
-                        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20, style: .continuous))
+                        .background(theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
                         .overlay {
                             if isCurrent {
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -123,7 +131,7 @@ struct TodayView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, viewModel.snapshot.tasks.isEmpty ? 0 : 6)
-            .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 20, style: .continuous))
+            .background(theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
         }
     }
 
@@ -131,9 +139,9 @@ struct TodayView: View {
         VStack(spacing: 16) {
             Image(systemName: "camera.viewfinder")
                 .font(.system(size: 56, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.onAccent)
                 .frame(width: 110, height: 110)
-                .background(Color.accentColor.gradient, in: .circle)
+                .background(theme.accent.gradient, in: .circle)
             Text("Եկ ծանոթանանք դասացուցակիդ հետ").font(.title3.bold()).multilineTextAlignment(.center)
             Text("Լուսանկարիր այն, և ես ամեն ինչ կդասավորեմ 📸")
                 .foregroundStyle(.secondary).multilineTextAlignment(.center)
@@ -148,7 +156,7 @@ struct TodayView: View {
             .buttonBorderShape(.capsule)
         }
         .frame(maxWidth: .infinity)
-        .card()
+        .card(tint: theme.accent)
     }
 }
 

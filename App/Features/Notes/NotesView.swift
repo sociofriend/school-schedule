@@ -49,7 +49,7 @@ struct NotesView: View {
     private func chip(_ title: String, isOn: Bool, action: @escaping () -> Void) -> some View {
         Button(title, action: action)
             .buttonStyle(.bordered)
-            .tint(isOn ? .accentColor : .secondary)
+            .tint(isOn ? nil : Color.secondary)
             .buttonBorderShape(.capsule)
     }
 }
