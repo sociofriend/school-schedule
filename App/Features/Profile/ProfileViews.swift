@@ -259,8 +259,8 @@ struct ThemePicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            row("Փոքրերի համար", AppTheme.kids)
-            row("Ավագների համար", AppTheme.teens)
+            row("Հեքիաթային", AppTheme.kids)
+            row("Դասական", AppTheme.teens)
         }
         .sensoryFeedback(.selection, trigger: selection)
     }
