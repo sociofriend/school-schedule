@@ -15,7 +15,7 @@ struct SettingsView: View {
                         ProfileEditView(profile: profile)
                     } label: {
                         HStack(spacing: 14) {
-                            AvatarView(photo: profile.photo, name: profile.name, size: 52)
+                            AvatarView(profile: profile, size: 52)
                             Text(profile.name.isEmpty ? "Իմ պրոֆիլը" : profile.name).font(.title3.bold())
                         }
                     }
