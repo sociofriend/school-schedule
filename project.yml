@@ -5,6 +5,8 @@ options:
     iOS: "17.0"
   developmentLanguage: hy
   createIntermediateGroups: true
+  # Marks the project as upgraded (LastUpgradeCheck), so Xcode stops offering "Update to recommended settings".
+  xcodeVersion: "27.0"
 settings:
   base:
     # Armenian-only app: Xcode extracts SwiftUI literals into App/Resources/Localizable.xcstrings on build.
@@ -18,6 +20,12 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
     TARGETED_DEVICE_FAMILY: "1,2"
+    # Xcode's recommended settings, adopted here instead of in the generated project.
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+    DEAD_CODE_STRIPPING: YES
+    CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED: YES
 packages:
   SwiftyTesseract:
     url: https://github.com/SwiftyTesseract/SwiftyTesseract
