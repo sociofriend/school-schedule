@@ -53,6 +53,12 @@ struct SettingsView: View {
                     } label: {
                         Label("Խմբագրել ձեռքով", systemImage: "square.and.pencil")
                     }
+                    if let timetable = viewModel.shareableTimetable {
+                        let package = SharePackage(sender: profile.name, content: .timetable(timetable))
+                        ShareLink(item: package, message: Text(package.readableText), preview: SharePreview(package.title)) {
+                            Label("Ուղարկել ընկերոջը", systemImage: "square.and.arrow.up")
+                        }
+                    }
                 }
 
                 Section {

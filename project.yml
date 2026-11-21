@@ -53,6 +53,18 @@ targets:
           - UIInterfaceOrientationLandscapeRight
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
+        # Shared tasks/timetables: `.dasacucak` files open in the app (ShareInboxView).
+        LSSupportsOpeningDocumentsInPlace: false
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Դասացուցակի ֆայլ
+            LSHandlerRank: Owner
+            LSItemContentTypes: [am.dasacucak.share]
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: am.dasacucak.share
+            UTTypeDescription: Դասացուցակի ֆայլ
+            UTTypeConformsTo: [public.json, public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [dasacucak]
         NSCameraUsageDescription: Տեսախցիկն անհրաժեշտ է դասացուցակը և գրատախտակը լուսանկարելու համար։
     entitlements:
       path: App/SchoolSchedule.entitlements

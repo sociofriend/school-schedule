@@ -14,6 +14,7 @@ Native iOS 17+ app: scan a timetable with the camera, per-lesson notes and photo
 - **Scan**: VisionKit document camera or screenshot → Tesseract OCR with the Armenian model (`Resources/tessdata/hye.traineddata`, via SwiftyTesseract; Apple Vision has no Armenian) → `TimetableParser` (grid or e-diary cards) → `SubjectDictionary` fixes → editable review.
 - **Notifications**: `NotificationScheduler` precomputes 14 evenings of "tomorrow" content and rebuilds on every save.
 - **Widget**: `Widget/` timeline entries at each lesson start/end.
+- **Sharing**: a task or the timetable goes out via `ShareLink` as a `.dasacucak` JSON file (`SharePackage`) plus readable text for kids without the app. Opening the file shows `ShareInboxView`: a preview, then where to put it (subject and due date, or replace/merge the timetable). No backend.
 
 
 ## Design (kids first, teacher friendly)
